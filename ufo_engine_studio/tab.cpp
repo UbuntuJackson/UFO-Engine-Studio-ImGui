@@ -16,14 +16,19 @@ void Tab::Update(ProgramState* _program_state){
 
     if(ImGui::BeginTabItem(((DetermineIfEdited() ? name : name+"*")+"###"+name).c_str(), &opened, ImGuiTabItemFlags_None)){
         //ImGui::BeginChildFrame(1,ImVec2(800,600));
-        ImGuiID dock_space_id = ImGui::GetID(name.c_str());
+        //ImGui::Begin(("TabWindow##"+name).c_str());
+        ImGuiID local_dockspace_id = ImGui::GetID(name.c_str());
 
-        ImGui::DockSpace(dock_space_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-        
+        OnMakeDockSpace(local_dockspace_id, _program_state);
+
+        ImGui::DockSpace(local_dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+        //ImGui::End();
+
         _program_state->active_tab = this;
 
-        OnActive(_program_state);
-        
+        OnActive(local_dockspace_id ,_program_state);
+
         //ImGui::EndChildFrame();
         ImGui::EndTabItem();
         
@@ -35,9 +40,13 @@ bool Tab::DetermineIfEdited(){
     return false;
 }
 
-void Tab::OnActive(ProgramState* _program_state){}
+void Tab::OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state){
+    
+}
 
-void Tab::OnSave(){
+void Tab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state){}
+
+void Tab::OnSave(ProgramState* _program_state){
 }
 
 }

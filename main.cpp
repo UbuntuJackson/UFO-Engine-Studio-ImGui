@@ -1,5 +1,6 @@
 #include  "console/console.h"
 #include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 #include "imgui/backends/imgui_impl_sdl3.h"
 #include "imgui/backends/imgui_impl_sdlrenderer3.h"
 #include <stdio.h>
@@ -16,6 +17,7 @@
 #include "ufo_engine_studio/terminal.h"
 #include "ufo_engine_studio/tab_bar.h"
 #include "ufo_engine_studio/file_node.h"
+#include "ufo_engine_studio/dock_utils.h"
 
 // Main code
 int main()
@@ -80,12 +82,13 @@ int main()
     //IM_ASSERT(font != nullptr);
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     bool show_sample_window = false;
 
     //My own project
     bool show_ufo_engine_studio = true;
+    bool setup_main_dock_space = false;
     UFOEngineStudio::ProgramState program(renderer);
     program.window = window;
 
@@ -124,8 +127,10 @@ int main()
         ImGui::NewFrame();
 
         if(show_ufo_engine_studio){
+                
+            UFOEngineStudio::MainMenuBar(&program);
 
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags im_gui_window_flags = ImGuiWindowFlags_NoDocking |
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_NoResize |
@@ -138,11 +143,15 @@ int main()
             ImGui::SetNextWindowSize(viewport->Size);
             ImGui::SetNextWindowViewport(viewport->ID);
 
-            ImGuiID dock_space_id = ImGui::GetID("DockspaceOutsideTab");
+            ImGui::Begin("DemoDockspaceForGodsSake", nullptr, im_gui_window_flags);
 
-            UFOEngineStudio::MainMenuBar(&program);
-            
-            ImGui::DockSpaceOverViewport(dock_space_id, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+            ImGuiID dock_space_id = ImGui::GetID("DockSpaceOutsideTab");
+            UFOEngineStudio::ImGuiDockSpaceSplit(dock_space_id, viewport->Size, "File Tree", "TabBarWindow", UFOEngineStudio::SplitDirections::HORIZONTAL);
+
+            ImGui::DockSpace(dock_space_id, ImVec2(0.0f,0.0f), 0);
+
+            ImGui::End();
+
             ImGui::Begin("File Tree");
 
             if(program.opened_directory.get() != nullptr){
@@ -151,12 +160,13 @@ int main()
 
             ImGui::End();
 
-            ImGui::Begin("MainWindow");
+            ImGui::Begin("TabBarWindow");
 
             UFOEngineStudio::TabBar(&program);
-            UFOEngineStudio::Terminal(&program);
 
             ImGui::End();
+
+            UFOEngineStudio::Terminal(&program);
 
             program.Update();
 

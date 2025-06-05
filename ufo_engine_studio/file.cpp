@@ -20,7 +20,7 @@ namespace UFOEngineStudio{
 
             if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()){
 
-                std::string tab_name = path+"/"+file_name.substr((path+"/"+file_name).find_last_of("/")+1);
+                std::string tab_name = (path+"/"+file_name).substr((path+"/"+file_name).find_last_of("/")+1);
 
                 bool tab_already_open = false;
 
@@ -31,17 +31,29 @@ namespace UFOEngineStudio{
                 }
 
                 if(!tab_already_open){
+                    Console::PrintLine("Trying to open tab...");
 
                     std::string p = _program->working_directory_path+path+"/"+file_name;
 
                     if(File::Exists(p)){
-                        File f;
-                        f.Read(p);
+                        std::string extension = tab_name.substr(tab_name.find_last_of(".")+1);
 
-                        auto u_tf = std::make_unique<TextEditorTab>(path+"/"+file_name, f.GetAsString());
-                        u_tf->path = p;
-                        
-                        _program->tabs.push_back(std::move(u_tf));
+                        if(extension == "cpp" || extension == "h" || extension == "hpp" || extension == "h"){
+                            File f;
+                            f.Read(p);
+
+                            auto u_tf = std::make_unique<TextEditorTab>(path+"/"+file_name, f.GetAsString());
+                            u_tf->path = p;
+                            
+                            _program->tabs.push_back(std::move(u_tf));
+                        }
+                        else if(extension == ".json"){
+                            Console::PrintLine("json not supported... yet:",p);
+                            //JsonVariant::Read(p);
+                        }
+                        else{
+                            Console::PrintLine("File extension not supported:",p);
+                        }
                     }
                     else{
                         Console::PrintLine("File does not exist at:",p);

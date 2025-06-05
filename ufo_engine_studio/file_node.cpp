@@ -79,7 +79,9 @@ void FileNode::Sort(){
     
     auto comp = [](const std::unique_ptr<FileNode>& _a, const std::unique_ptr<FileNode>& _b){
 
-        bool char_same = false;
+        return _a->file_name < _b->file_name;
+
+        /*bool char_same = false;
 
         if(int(_a->file_name.size()) > int(_b->file_name.size())){
 
@@ -107,11 +109,10 @@ void FileNode::Sort(){
 
         if(char_same) return _a->file_name.size() > _b->file_name.size();
 
-        return false;
+        return false;*/
     };
 
-    //End of file_ndoes.end() appearsa to be invalid
-    std::stable_sort(file_nodes.begin(), file_nodes.end(),comp);
+    std::sort(file_nodes.begin(), file_nodes.end(),comp);
 
     for(auto&& i : file_nodes){
         i->Sort();

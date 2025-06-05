@@ -7,11 +7,12 @@
 #include <memory>
 #include "program_state.h"
 #include "text_editor_tab.h"
+#include "actor_class.h"
 
 namespace UFOEngineStudio{
 
 ProgramState::ProgramState(SDL_Renderer* _renderer){
-    SDL_Surface* example_surface = IMG_Load("../res/pin.png");
+    SDL_Surface* example_surface = IMG_Load("../res/placeholder_icon.png");
     assert(example_surface != nullptr);
     example_texture = SDL_CreateTextureFromSurface(_renderer ,example_surface);
     assert(example_texture != nullptr);
@@ -19,6 +20,25 @@ ProgramState::ProgramState(SDL_Renderer* _renderer){
 
     tabs.push_back(std::make_unique<UFOEngineStudio::LevelEditorTab>("LevelTab1"));
 
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Spawner"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"Spawner"}, "Actors");
+    project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
+    project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
+    project.AddActorVariantFromActorClass(ActorClass{"DraggableObject"}, "TestActors");
 }
 
 void ProgramState::WriteProjectFile(std::string _path){
@@ -47,7 +67,7 @@ void ProgramState::OpenProjectFile(std::string _path){
     for(auto&& actor_class : actor_classes){
         std::string actor_class_name = actor_class->AsDictionary().Get("name").AsString();
         Console::PrintLine("Loading actor class:", actor_class_name);
-        project.actor_classes.push_back(ActorClass{actor_class_name});
+        //project.actor_categories.push_back(ActorClass{actor_class_name});
     }
 
 }

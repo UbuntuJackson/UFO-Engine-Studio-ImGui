@@ -20,8 +20,9 @@ public:
 
     bool DetermineIfEdited();
 
-    void OnActive(ProgramState* _program);
-    void OnSave();
+    void OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state);
+    void OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state);
+    void OnSave(ProgramState* _program_state);
 };
 
 };

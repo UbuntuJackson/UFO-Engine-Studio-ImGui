@@ -2,6 +2,7 @@
 #include "../imgui/misc/cpp/imgui_stdlib.h"
 #include "text_editor_tab.h"
 #include "../console/console.h"
+#include "dock_utils.h"
 
 namespace UFOEngineStudio{
 
@@ -17,15 +18,19 @@ bool TextEditorTab::DetermineIfEdited(){
     return text == last_saved_text;
 }
 
-void TextEditorTab::OnActive(ProgramState* _program){
+void TextEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state){
 
     ImGui::Begin("Text- and Code Editing");
-    ImGui::InputTextMultiline("##TextEditor", &text, ImVec2(ImGui::GetWindowSize()), ImGuiInputTextFlags_CallbackCompletion, FilterTabs);
+    ImGui::InputTextMultiline(("##TextEditor"+name).c_str(), &text, ImVec2(ImGui::GetWindowSize()), ImGuiInputTextFlags_CallbackCompletion, FilterTabs);
     
     ImGui::End();
 }
 
-void TextEditorTab::OnSave(){
+void TextEditorTab::OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state){
+    ImGuiDockSpaceFill(_local_dockspace_id, ImGui::GetWindowSize(), "Text- and Code Editing");
+}
+
+void TextEditorTab::OnSave(ProgramState* _program_state){
     //File will have no name if it isn't read or created with respect to file system
     if(name != ""){
         File f;

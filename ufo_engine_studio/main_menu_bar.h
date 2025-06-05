@@ -1,29 +1,41 @@
 #pragma once
+#include <string>
 #include "../imgui/misc/cpp/imgui_stdlib.h"
 #include "../imgui/imgui.h"
 #include "program_state.h"
 #include "../console/console.h"
 #include "program_state.h"
 #include "file_node.h"
+#include "actor_composer_tab.h"
 
 namespace UFOEngineStudio{
 
-void OnWriteProjectFile(void *_userdata, const char * const *_filelist, int _filter){
+inline void OnWriteProjectFile(void *_userdata, const char * const *_filelist, int _filter){
     ((ProgramState*)_userdata)->WriteProjectFile(*_filelist);
 }
 
-void OnOpenProjectFile(void *_userdata, const char * const *_filelist, int _filter){
+inline void OnOpenProjectFile(void *_userdata, const char * const *_filelist, int _filter){
     ((ProgramState*)_userdata)->OpenProjectFile(*_filelist);
 }
 
-void OnOpenFolder(void *_userdata, const char * const *_filelist, int _filter){
+inline void OnOpenFolder(void *_userdata, const char * const *_filelist, int _filter){
     ProgramState* program = (ProgramState*)_userdata;
 
     program->opened_directory = FileNode::ParseFolder(*_filelist);
 
 }
 
-void MainMenuBar(ProgramState* _program){
+inline void OnNewActorFile(void *_tab, const char * const *_filelist, int _filter){
+    ActorComposerTab* tab = (ActorComposerTab*)_tab;
+
+    std::string name = std::string(*_filelist).substr(std::string(*_filelist).find_last_of("/")+1);
+
+    tab->path = *_filelist;
+    tab->actor->WriteToJson().Write(*_filelist);
+
+}
+
+inline void MainMenuBar(ProgramState* _program){
     //ImGui::Begin("MenuBarWindow", nullptr, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMainMenuBar())
     {
@@ -37,8 +49,12 @@ void MainMenuBar(ProgramState* _program){
                 SDL_ShowOpenFolderDialog(&OnOpenFolder , _program, _program->window, file_location, false);
             }
 
+            if(ImGui::MenuItem("New Actor File")){
+                _program->tabs.push_back(std::make_unique<ActorComposerTab>());
+            }
+
             if(ImGui::MenuItem("Save File", "CTRL+S")){ //Shortcut does not work and I have no idea why
-                if(_program->active_tab) _program->active_tab->OnSave();
+                if(_program->active_tab) _program->active_tab->OnSave(_program);
                 Console::PrintLine("Saving...");
             }
 

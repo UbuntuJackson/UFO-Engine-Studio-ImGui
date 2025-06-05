@@ -5,23 +5,35 @@
 #include "../json/json_variant.h"
 #include "tab.h"
 #include "file_node.h"
+#include "actor_class.h"
 #include <memory>
+#include <algorithm>
 
 namespace UFOEngineStudio{
-
-struct ActorClass{
-    std::string name;
-    std::vector<std::string> variables;
-    std::vector<std::string> categories;
-};
 
 struct Project{
     std::string path;
     bool is_valid;
     std::string name;
 
-    std::vector<ActorClass> actor_classes;
+    std::map<int, ActorClass> actor_classes;
+    std::vector<ActorVariant> actor_categories;
     
+    void AddActorVariantFromFile(std::string _file){
+
+    }
+
+    void AddActorVariantFromActorClass(ActorClass _actor_class, const std::string& _category){
+        for(auto&& [actor_class_id,actor_class] : actor_classes){
+            if(actor_class.name == _actor_class.name){
+                actor_categories.push_back(ActorVariant{actor_class_id, _category});
+                return;
+            }
+        }
+
+        actor_classes[actor_classes.size()] = _actor_class;
+        actor_categories.push_back(ActorVariant{int(actor_classes.size()-1), _category});
+    }
 };
 
 struct DragDrop{
@@ -116,7 +128,7 @@ public:
         //Delete file nodes marked for deletion
         if(opened_directory.get() != nullptr){
 
-            opened_directory->Traverse();
+            //opened_directory->Traverse();
 
             opened_directory->DeleteFileNodesMarkedForDeletion();
         
@@ -124,6 +136,10 @@ public:
 
             opened_directory->Sort();
         }
+
+        std::sort(project.actor_categories.begin(), project.actor_categories.begin(), [](const ActorVariant& _a, const ActorVariant& _b){
+            return _a.category < _b.category;
+        });
     } 
 
     void CleanUp();
