@@ -16,8 +16,10 @@ public:
     PropertyFloat* rotation = nullptr;
 
     SpriteReferenceEditorObject(){
+        constructor_properties.clear();
         
         key = AddConstructorProperty<PropertyString>("key", "");
+        local_position_handle = AddConstructorProperty<PropertyVector2f>("local position", 0.0f, 0.0f);
         offset = AddConstructorProperty<PropertyVector2f>("offset", 0.0f, 0.0f);
         frame_size = AddConstructorProperty<PropertyVector2f>("scale", 0.0f, 0.0f);
         scale = AddConstructorProperty<PropertyVector2f>("frame size", 0.0f, 0.0f);

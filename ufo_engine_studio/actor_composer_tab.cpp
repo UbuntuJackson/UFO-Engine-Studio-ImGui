@@ -89,7 +89,9 @@ void ActorComposerTab::OnActive(ImGuiID _local_dockspace_id, ProgramState* _prog
         includes+= "#include <ufo_maths.h>\n";
 
         header_file+= "\n";
-        header_file+= "void OnComponentBuild("+json.Get("type").AsString()+"* _this){\n";
+        header_file+= "namespace Generated{\n";
+        header_file+= "\n";
+        header_file+= "void BuildComponentTree("+json.Get("type").AsString()+"* _this){\n";
         header_file+= "\n";
         json.Set("name", "_this");
 
@@ -105,11 +107,17 @@ void ActorComposerTab::OnActive(ImGuiID _local_dockspace_id, ProgramState* _prog
             }
         }
 
+        header_file+= "\n";
+        header_file+= "}\n"; //Closing off namespace Generated{
+
         header_file = includes + header_file;
 
         File f;
         f.Insert(header_file);
         f.Write(_program_state->working_directory_path + "/" + actor->name + "_generated.h");
+
+        //Need to reload the working directory.
+        _program_state->OpenFolder(_program_state->working_directory_path);
     }
 
     ImGui::End();

@@ -72,7 +72,7 @@ namespace UFOEngineStudio{
 
             if(ImGui::IsItemClicked()){
                 Console::PrintLine("This file is on path",path+"/"+file_name);
-                _program->drag_drop_stack.push_back(DragDrop{this, _parent});
+                _program->drag_drop_stack.push_back(DragDrop{this, _parent, _program->working_directory_path + path});
             }
     
             //If thing is dropped on a file
@@ -83,6 +83,7 @@ namespace UFOEngineStudio{
 
                     //Move to parent folder to place next to neighbouring folder
                     _program->drag_drop_stack.back().move_to_folder = _parent;
+                    _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path;
                     _program->drag_drop_stack.back().index_in_move_to_folder = _file_index;
                     //_program->drag_drop_stack.push_back();
                 }
