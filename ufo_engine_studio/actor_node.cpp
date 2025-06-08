@@ -6,15 +6,21 @@
 #include "program_state.h"
 #include "../console/console.h"
 #include "../json/json_variant.h"
+#include "actor_composer_tab.h"
+#include "property.h"
+#include "editor_objects/editor_object.h"
+#include "editor_objects/sprite_reference_editor_object.h"
 
 namespace UFOEngineStudio{
 
 ActorNode::ActorNode(){
     id = id_incrementation_counter++;
-    name = "Actor#"+std::to_string(id);
+    name = "Actor_"+std::to_string(id);
+
+    editor_object = std::make_unique<ActorEditorObject>();
 }
 
-void ActorNode::Update(int _file_index, ActorNode* _parent, std::string path , ProgramState* _program){
+void ActorNode::Update(int _file_index, ActorComposerTab* _actor_composer, ActorNode* _parent, std::string path , ProgramState* _program){
     bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+std::to_string(id)).c_str() : (name+" ("+actor_type+")"+"###Directory"+std::to_string(id)).c_str());
 
     if(editing_name){
@@ -33,18 +39,15 @@ void ActorNode::Update(int _file_index, ActorNode* _parent, std::string path , P
 
     if(editing_type){
         ImGui::Begin("Change ActorNode Type");
+        for(const auto& [index,actor_class] : _program->project.actor_classes){
+            if(ImGui::Button(actor_class.name.c_str())){
+                actor_type = actor_class.name;
 
-        if(ImGui::Button("Actor")){
-            actor_type = "Actor";
-            editing_type = false;
-        }
-        if(ImGui::Button("SpriteReference")){
-            actor_type = "SpriteReference";
-            editing_type = false;
-        }
-        if(ImGui::Button("Animation")){
-            actor_type = "Animation";
-            editing_type = false;
+                //Generate a new object here, only instantiates an ActorEditorObject for now.s
+                editor_object = CreateEditorObjectWithTypeFromString(actor_class.name);
+
+                editing_type = false;
+            }
         }
 
         ImGui::End();
@@ -53,30 +56,36 @@ void ActorNode::Update(int _file_index, ActorNode* _parent, std::string path , P
     if(add_actor_node_dialogue_open){
         ImGui::Begin("Add ActorNode");
 
-        if(ImGui::Button("Actor")){
-            actor_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<ActorNode>());
-            actor_nodes_to_be_added_at_end_of_frame.back()->actor_type = "Actor";
-            actor_nodes_to_be_added_at_end_of_frame.back()->editing_name = true;
-            add_actor_node_dialogue_open = false;
-        }
-        if(ImGui::Button("SpriteReference")){
-            actor_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<ActorNode>());
-            actor_nodes_to_be_added_at_end_of_frame.back()->actor_type = "SpriteReference";
-            actor_nodes_to_be_added_at_end_of_frame.back()->editing_name = true;
-            add_actor_node_dialogue_open = false;
-        }
-        if(ImGui::Button("Animation")){
-            actor_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<ActorNode>());
-            actor_nodes_to_be_added_at_end_of_frame.back()->actor_type = "Animation";
-            actor_nodes_to_be_added_at_end_of_frame.back()->editing_name = true;
-            add_actor_node_dialogue_open = false;
+        for(const auto& [index,actor_class] : _program->project.actor_classes){
+            if(ImGui::Button(actor_class.name.c_str())){
+                auto new_actor_node = std::make_unique<ActorNode>();
+                new_actor_node->actor_type = actor_class.name;
+                
+                //Change type of the node
+                new_actor_node->editor_object = CreateEditorObjectWithTypeFromString(actor_class.name);
+
+                new_actor_node->editing_type = false;
+
+                actor_nodes_to_be_added_at_end_of_frame.push_back(std::move(new_actor_node));
+                add_actor_node_dialogue_open = false;
+            }
         }
 
         ImGui::End();
     }
 
     if(ImGui::IsItemClicked()){
+        show_properties = true;
+
         //_program->drag_drop_stack.push_back(DragDrop{this, _parent});
+    }
+
+    if(show_properties){
+        ImGui::Begin(("Instance Properties##"+std::to_string(id)).c_str());
+
+        editor_object->PropertyUpdate(_program);
+
+        ImGui::End();
     }
 
     if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
@@ -127,7 +136,7 @@ void ActorNode::Update(int _file_index, ActorNode* _parent, std::string path , P
     if(folder_opened){
 
         for(int index = 0; index < actor_nodes.size(); index++){
-            actor_nodes[index]->Update(index,this,(_parent ? path+"/" : "")+name,_program);
+            actor_nodes[index]->Update(index,_actor_composer,this,(_parent ? path+"/" : "")+name,_program);
         }
 
         ImGui::TreePop();
@@ -165,12 +174,71 @@ JsonDictionary ActorNode::WriteToJson(){
     this_actor.Set("name", name);
     this_actor.Set("type", actor_type);
     this_actor.Set("children", JsonArray());
+    this_actor.Set("constructor_properties", JsonArray()); //This is going in editor_object
+    this_actor.Set("properties", JsonArray()); //This is going in editor_object
 
     for(const auto& child : actor_nodes){
         this_actor.Get("children").AsArray().Push(child->WriteToJson());
     }
 
+    for(const auto& property : editor_object->constructor_properties){ //This is going in editor_object
+        this_actor.Get("constructor_properties").AsArray().Push(property->AsJson());
+    }
+
+    for(const auto& property : editor_object->properties){ //This is going in editor_object
+        this_actor.Get("properties").AsArray().Push(property->AsJson());
+    }
+
     return this_actor;
+}
+
+/*std::unique_ptr<ActorNode> ActorNode::ReadFromJsonTypeDiverse(ProgramState* _program_state, JsonDictionary* _json){
+    std::unique_ptr<ActorNode> actor_node;
+
+    std::string local_name = _json->Get("name").AsString();
+    std::string local_actor_type = _json->Get("type").AsString();
+
+    actor_node = _program_state->ActorNodeFactoryTypeDiverse(local_actor_type);
+    ActorNode::SetAttributesFromJsonTypeDiverse(_json, actor_node.get());
+    actor_node->Initialise();
+}
+
+void ActorNode::SetAttributesFromJsonTypeDiverse(JsonDictionary* _json, ActorNode* _instance){
+
+}*/
+
+std::unique_ptr<ActorEditorObject> ActorNode::CreateEditorObjectWithTypeFromString(std::string _actor_type){
+
+    if(_actor_type == "Actor"){
+        return std::make_unique<ActorEditorObject>();
+    }
+
+    if(_actor_type == "SpriteReference"){
+        return std::make_unique<SpriteReferenceEditorObject>();
+    }
+
+    assert(false && "Bad value");
+
+}
+
+void ActorNode::ReadFromJson(JsonDictionary* _json){
+    name = _json->Get("name").AsString();
+    actor_type = _json->Get("type").AsString();
+
+    editor_object = CreateEditorObjectWithTypeFromString(actor_type);
+
+    editor_object->SetPropertiesFromJson(_json);
+    /*if(actor_type == "Actor"){
+        editor_object = std::make_unique<ActorEditorObject>();
+        editor_object->SetPropertiesFromJson(_json);
+    }*/
+
+    for(const auto& child : _json->Get("children").AsArray().Iterable()){
+        auto u_child = std::make_unique<ActorNode>();
+        u_child->ReadFromJson(&child->AsDictionary());
+        actor_nodes.push_back(std::move(u_child));
+    }
+
 }
     
 }

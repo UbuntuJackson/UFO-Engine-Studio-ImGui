@@ -18,6 +18,10 @@ public:
     int id = 0;
 
     bool editing_name = false;
+    void TurnOnEditMode(){
+        editing_name = true;
+        old_file_name = file_name;
+    }
     
     bool to_be_deleted = false;
     std::vector<std::unique_ptr<FileNode>> file_nodes_to_be_added_at_end_of_frame;
@@ -25,6 +29,7 @@ public:
     std::vector<std::unique_ptr<FileNode>> file_nodes;
 
     std::string file_name;
+    std::string old_file_name;
 
     FileNode();
 

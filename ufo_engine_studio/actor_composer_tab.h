@@ -14,7 +14,9 @@ public:
 
     std::unique_ptr<ActorNode> actor;
 
-    ActorComposerTab();
+    ActorComposerTab(ProgramState* _program_state);
+
+    void ConvertJsonToCPP(std::string& _header_file, std::vector<std::string>& _used_actor_classes, JsonDictionary* _json, ProgramState* _program_state);
 
     void OnActive(ImGuiID _local_dockspace_id, ProgramState* _program_state);
 

@@ -13,7 +13,7 @@ public:
 
     bool actor_variant_config_open = false;
 
-    LevelEditorTab(std::string _file);
+    LevelEditorTab(ProgramState* _program_state, std::string _file);
 
     void OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state);
 

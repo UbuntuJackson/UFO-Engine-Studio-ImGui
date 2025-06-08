@@ -15,7 +15,7 @@
 
 namespace UFOEngineStudio{
 
-LevelEditorTab::LevelEditorTab(std::string _file){
+LevelEditorTab::LevelEditorTab(ProgramState* _program_state,std::string _file){
     name = _file.substr(_file.find_last_of("/")+1);
     level_root = std::make_unique<ActorNode>();
     level_root->name = "LevelRoot";
@@ -64,7 +64,7 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
 
     ImGui::Begin("Instances");
 
-    level_root->Update(0 ,nullptr, "" , _program_state);
+    level_root->Update(0 ,nullptr,nullptr, "" , _program_state);
     level_root->DeleteActorNodesMarkedForDeletion();
     level_root->AddActorNodesRecursive();
 
@@ -106,6 +106,8 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
             1.0f
         );
     }
+
+    level_root->DrawInLevel(nullptr, Vector2f(0.0f, 0.0f));
 
     ImGui::EndChild();
 

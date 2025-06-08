@@ -18,7 +18,7 @@ FileNode::FileNode(){
 }
 
 std::unique_ptr<FileNode> FileNode::ParseFolder(std::string _path){
-    std::unique_ptr<Directory> directory = std::make_unique<Directory>();
+    std::unique_ptr<Directory> directory = std::make_unique<Directory>(false);
 
     directory->file_name = _path.substr(_path.find_last_of("/")+1);
 
@@ -66,7 +66,9 @@ void FileNode::DeleteFileNodesMarkedForDeletion(){
     //Console::PrintLine(file_name);
 
     for(int i = file_nodes.size()-1; i >= 0; i--){
-        if(file_nodes[i]->to_be_deleted) file_nodes.erase(file_nodes.begin() + i);
+        if(file_nodes[i]->to_be_deleted){
+            file_nodes.erase(file_nodes.begin() + i);
+        }
     }
 
     for(int i = file_nodes.size()-1; i >= 0; i--){

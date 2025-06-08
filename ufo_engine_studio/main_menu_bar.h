@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <exception>
 #include "../imgui/misc/cpp/imgui_stdlib.h"
 #include "../imgui/imgui.h"
 #include "program_state.h"
@@ -11,14 +12,18 @@
 namespace UFOEngineStudio{
 
 inline void OnWriteProjectFile(void *_userdata, const char * const *_filelist, int _filter){
+    if(*_filelist == nullptr) return; //Should file not have been selected
     ((ProgramState*)_userdata)->WriteProjectFile(*_filelist);
 }
 
 inline void OnOpenProjectFile(void *_userdata, const char * const *_filelist, int _filter){
+    if(*_filelist == nullptr) return; //Should file not have been selected
     ((ProgramState*)_userdata)->OpenProjectFile(*_filelist);
 }
 
 inline void OnOpenFolder(void *_userdata, const char * const *_filelist, int _filter){
+    if(*_filelist == nullptr) return; //Should file not have been selected
+
     ProgramState* program = (ProgramState*)_userdata;
 
     program->opened_directory = FileNode::ParseFolder(*_filelist);
@@ -26,6 +31,7 @@ inline void OnOpenFolder(void *_userdata, const char * const *_filelist, int _fi
 }
 
 inline void OnNewActorFile(void *_tab, const char * const *_filelist, int _filter){
+    if(*_filelist == nullptr) return; //Should file not have been selected
     ActorComposerTab* tab = (ActorComposerTab*)_tab;
 
     std::string name = std::string(*_filelist).substr(std::string(*_filelist).find_last_of("/")+1);
@@ -50,7 +56,9 @@ inline void MainMenuBar(ProgramState* _program){
             }
 
             if(ImGui::MenuItem("New Actor File")){
-                _program->tabs.push_back(std::make_unique<ActorComposerTab>());
+                _program->tabs.push_back(std::make_unique<ActorComposerTab>(_program));
+                
+                
             }
 
             if(ImGui::MenuItem("Save File", "CTRL+S")){ //Shortcut does not work and I have no idea why
@@ -82,7 +90,12 @@ inline void MainMenuBar(ProgramState* _program){
             if (ImGui::MenuItem("Open Project")) {
                 const char file_location[] = "/home";
 
-                SDL_ShowOpenFileDialog(&OnOpenProjectFile, _program, _program->window, nullptr, 0, file_location, false);
+                //try{
+                    SDL_ShowOpenFileDialog(&OnOpenProjectFile, _program, _program->window, nullptr, 0, file_location, false);
+                /*}
+                catch(std::logic_error()){
+
+                }*/
             }  // Disabled item
             ImGui::EndMenu();
         }

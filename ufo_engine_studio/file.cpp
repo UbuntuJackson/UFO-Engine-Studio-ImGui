@@ -6,6 +6,8 @@
 #include "program_state.h"
 #include "text_editor_tab.h"
 #include "../file/file.h"
+#include "actor_composer_tab.h"
+#include <filesystem>
 
 namespace UFOEngineStudio{
 
@@ -33,30 +35,36 @@ namespace UFOEngineStudio{
                 if(!tab_already_open){
                     Console::PrintLine("Trying to open tab...");
 
-                    std::string p = _program->working_directory_path+path+"/"+file_name;
+                    std::string full_path = _program->working_directory_path+path+"/"+file_name;
 
-                    if(File::Exists(p)){
+                    if(File::Exists(full_path)){
                         std::string extension = tab_name.substr(tab_name.find_last_of(".")+1);
 
                         if(extension == "cpp" || extension == "h" || extension == "hpp" || extension == "h"){
                             File f;
-                            f.Read(p);
+                            f.Read(full_path);
 
                             auto u_tf = std::make_unique<TextEditorTab>(path+"/"+file_name, f.GetAsString());
-                            u_tf->path = p;
+                            u_tf->path = full_path;
                             
                             _program->tabs.push_back(std::move(u_tf));
                         }
-                        else if(extension == ".json"){
-                            Console::PrintLine("json not supported... yet:",p);
-                            //JsonVariant::Read(p);
+                        else if(extension == "ason"){
+                            JsonDictionary d = JsonVariant::Read(full_path);
+
+                            auto u_actor_composer_tab = std::make_unique<ActorComposerTab>(_program);
+                            u_actor_composer_tab->actor->ReadFromJson(&d);
+                            u_actor_composer_tab->name = file_name;
+                            u_actor_composer_tab->path = full_path;
+                            _program->tabs.push_back(std::move(u_actor_composer_tab));
+                            
                         }
                         else{
-                            Console::PrintLine("File extension not supported:",p);
+                            Console::PrintLine("File extension not supported:",full_path);
                         }
                     }
                     else{
-                        Console::PrintLine("File does not exist at:",p);
+                        Console::PrintLine("File does not exist at:",full_path);
                     }
                 
                 }
@@ -108,10 +116,28 @@ namespace UFOEngineStudio{
 
         if(ImGui::BeginPopupContextItem(("Options"+std::to_string(id)).c_str())){
             if(ImGui::MenuItem("Rename")){
-                editing_name = true;
+                TurnOnEditMode();
             }
             if(ImGui::MenuItem("Delete")){
+                std::string full_path = _program->working_directory_path +"/"+ path+"/"+file_name;
+                int res = std::remove(full_path.c_str());
+                if(res) Console::PrintLine("TreeFile::Update(): Failture upon trying to remove", full_path.c_str());
                 to_be_deleted = true;
+                Console::PrintLine(file_name);
+            }
+            if(ImGui::MenuItem("New File")){
+                _parent->file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<TreeFile>(true));
+                _parent->file_nodes_to_be_added_at_end_of_frame.back()->editing_name = true;
+                
+            }
+            if(ImGui::MenuItem("New Folder")){
+                
+                std::string full_path = _program->working_directory_path + path+"/NewFolder";
+                std::filesystem::create_directory(full_path);
+                
+                _parent->file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<Directory>(true));
+                _parent->file_nodes_to_be_added_at_end_of_frame.back()->file_name = "NewFolder";
+                _parent->file_nodes_to_be_added_at_end_of_frame.back()->TurnOnEditMode();
             }
             ImGui::EndPopup();
         }

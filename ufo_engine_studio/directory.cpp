@@ -5,6 +5,8 @@
 #include "program_state.h"
 #include "file.h"
 #include "../file/file.h"
+#include <filesystem>
+#include <cstdio>
 
 namespace UFOEngineStudio{
 
@@ -17,17 +19,20 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
         
         ImGui::InputText(("###EditText"+std::to_string(id)).c_str(),&file_name);
 
-        if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemHovered()){
+        if((ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemHovered()) || ImGui::IsKeyPressed(ImGuiKey_Enter)){
             editing_name = false;
-        }
-
-        if(ImGui::IsKeyPressed(ImGuiKey_Enter)){
-            editing_name = false;
+            if(!is_new_directory) std::filesystem::rename(_program->working_directory_path + path + "/" + old_file_name, _program->working_directory_path + "/" + path + "/" + file_name);
+            else{
+                std::string full_path = _program->working_directory_path + path+"/"+file_name;
+                Console::PrintLine(full_path);
+                std::filesystem::create_directory(full_path);
+            }
+            is_new_directory = false;
         }
     }
 
     if(ImGui::IsItemClicked()){
-        _program->drag_drop_stack.push_back(DragDrop{this, _parent});
+        _program->drag_drop_stack.push_back(DragDrop{this, _parent, _program->working_directory_path + path});
     }
 
     if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
@@ -42,6 +47,7 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
         if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             Console::PrintLine("Drop");
             _program->drag_drop_stack.back().move_to_folder = this;
+            _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path + "/" + file_name;
             //_program->drag_drop_stack.push_back();
         }
         //ImGui::AcceptDragDropPayload("CONTENT_BROWSER_DATA");
@@ -51,11 +57,14 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
 
     if(ImGui::BeginPopupContextItem(("Options"+std::to_string(id)).c_str())){
         if(ImGui::MenuItem("Rename")){
-            editing_name = true;
+            TurnOnEditMode();
         }
         if(ImGui::MenuItem("Delete")){
+            std::string full_path = _program->working_directory_path + path+"/"+file_name;
+            int res = std::remove(full_path.c_str());
+            if(res) Console::PrintLine("Directory::Update(): failed to remove directory from at path", full_path.c_str());
+            
             to_be_deleted = true;
-            Console::PrintLine(file_name);
         }
         if(ImGui::MenuItem("New File")){
             file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<TreeFile>(true));
@@ -64,7 +73,9 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
         }
         if(ImGui::MenuItem("New Folder")){
             
-            Console::PrintLine(file_name);
+            file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<Directory>(true));
+            file_nodes_to_be_added_at_end_of_frame.back()->file_name = "NewFolder";
+            file_nodes_to_be_added_at_end_of_frame.back()->TurnOnEditMode();
         }
         ImGui::EndPopup();
     }

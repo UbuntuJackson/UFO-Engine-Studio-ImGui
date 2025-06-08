@@ -6,8 +6,10 @@
 #include "tab.h"
 #include "file_node.h"
 #include "actor_class.h"
+#include "actor_node.h"
 #include <memory>
 #include <algorithm>
+#include <filesystem>
 
 namespace UFOEngineStudio{
 
@@ -39,12 +41,15 @@ struct Project{
 struct DragDrop{
     FileNode* file_to_be_moved = nullptr;
     FileNode* owner = nullptr;
+    std::string owner_path;
     FileNode* move_to_folder = nullptr;
+    std::string move_to_path;
     int index_in_move_to_folder = 0;
 };
 
 class ProgramState{
 public:
+
     SDL_Window* window = nullptr;
 
     Project project = Project{"None", false};
@@ -116,6 +121,15 @@ public:
         }
 
         for(auto&& item : to_be_moved){
+
+            Console::PrintLine(item.drag_drop.owner_path, item.drag_drop.move_to_path+"/"+item.u_file_node_to_move->file_name);
+
+            Console::PrintLine(item.drag_drop.owner_path+"/"+item.drag_drop.file_to_be_moved->file_name,
+                item.drag_drop.move_to_path+"/"+item.drag_drop.file_to_be_moved->file_name);
+
+            std::filesystem::rename(item.drag_drop.owner_path+"/"+item.drag_drop.file_to_be_moved->file_name,
+                item.drag_drop.move_to_path+"/"+item.drag_drop.file_to_be_moved->file_name);
+
             item.drag_drop.owner->file_nodes.erase(item.drag_drop.owner->file_nodes.begin() +item.erase_index);
             item.drag_drop.move_to_folder->file_nodes.insert(item.drag_drop.move_to_folder->file_nodes.begin() + item.drag_drop.index_in_move_to_folder, std::move(item.u_file_node_to_move));
         }

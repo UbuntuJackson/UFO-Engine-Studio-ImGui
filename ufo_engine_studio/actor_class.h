@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
+#include "property.h"
 
 struct ActorClass{
     std::string name;
-    std::vector<std::string> variables;
+    std::string header_file = "";
 };
 
 struct ActorVariant{

@@ -8,6 +8,7 @@
 #include "program_state.h"
 #include "text_editor_tab.h"
 #include "actor_class.h"
+#include "property.h"
 
 namespace UFOEngineStudio{
 
@@ -18,7 +19,11 @@ ProgramState::ProgramState(SDL_Renderer* _renderer){
     assert(example_texture != nullptr);
     SDL_DestroySurface(example_surface);
 
-    tabs.push_back(std::make_unique<UFOEngineStudio::LevelEditorTab>("LevelTab1"));
+    tabs.push_back(std::make_unique<UFOEngineStudio::LevelEditorTab>(this,"LevelTab1"));
+
+    project.AddActorVariantFromActorClass(ActorClass{"Actor", "<actor.h>"}, "Engine");
+    project.AddActorVariantFromActorClass(ActorClass{"Animation", "<animation.h>"}, "Engine");
+    project.AddActorVariantFromActorClass(ActorClass{"SpriteReference", "<sprite_reference.h>"}, "Engine");
 
     project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
     project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");

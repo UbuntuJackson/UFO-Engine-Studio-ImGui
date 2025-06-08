@@ -18,10 +18,13 @@
 #include "ufo_engine_studio/tab_bar.h"
 #include "ufo_engine_studio/file_node.h"
 #include "ufo_engine_studio/dock_utils.h"
+#include "ufo_project_manager/ufo_project_manager.h"
 
 // Main code
 int main()
 {
+    UFOProjectManager();
+
     // Setup SDL
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
     {
@@ -92,7 +95,7 @@ int main()
     UFOEngineStudio::ProgramState program(renderer);
     program.window = window;
 
-    program.OpenFolder("/home/uj/Documents/C++/camera_class");
+    program.OpenFolder("/home/uj/Documents/C++/ufo_engine_example");
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 

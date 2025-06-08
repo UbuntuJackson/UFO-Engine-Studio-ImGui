@@ -1,0 +1,52 @@
+# How to implement UFO-Project-Manager in the toolchain
+
+1.) do an os call and execute a script, named something like "export_variables_to_json.py".
+    Let's assume this outputs something like "exported_variables.json"
+2.) "exported_variables.json" would look something like this:
+
+{
+    "classes" : [
+        {
+        "name" : "Spawner",
+        "implementation" : "src/spawner.cpp"
+        "variables : [
+            {
+                "identifier" : "interval_milliseconds",
+                "alias" : "spawn interval (milliseconds)",
+                "type" : "int",
+                "default_value" : 1000
+            }
+        ]
+        }
+    ]
+}
+
+or alternatively :
+
+{
+    "classes" : [
+        {
+        "name" : "Spawner",
+        "implementation" : "src/spawner.cpp",
+        "variables : [
+            {
+                "attributes" : [
+                    {
+                        "name" : "export",
+                        "value" : 1,
+                        "type" : int
+                    },
+                    {
+                        "name" : "alias",
+                        "value" : "spawn interval (milliseconds)",
+                        "type" : "String"
+                    }
+                ],
+                "type" : "int",
+                "name" : "interval_milliseconds",
+                "default_value" : 1000
+            }
+        ]
+        }
+    ]
+}
