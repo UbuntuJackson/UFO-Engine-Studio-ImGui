@@ -1,3 +1,9 @@
+/*
+
+    This class is currently unused
+
+*/
+
 #pragma once
 #include <memory>
 #include <SDL3/SDL.h>

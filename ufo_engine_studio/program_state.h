@@ -10,6 +10,7 @@
 #include <memory>
 #include <algorithm>
 #include <filesystem>
+#include "../json/json_variant.h"
 
 namespace UFOEngineStudio{
 
@@ -80,6 +81,12 @@ public:
 
     //This opens a folder but will also be used when opening a project
     void OpenFolder(std::string _path);
+
+    void ImportHeaderFileToProject(std::string _path){
+        Console::PrintLine("Interfacing with UFO-Project Manager starts here, reading from path:",_path);
+
+        
+    }
 
     //This runs after the directory tree is updated
     void Update(){

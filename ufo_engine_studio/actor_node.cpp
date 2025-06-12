@@ -6,10 +6,11 @@
 #include "program_state.h"
 #include "../console/console.h"
 #include "../json/json_variant.h"
-#include "actor_composer_tab.h"
+#include "level_editor_tab.h"
 #include "property.h"
 #include "editor_objects/editor_object.h"
 #include "editor_objects/sprite_reference_editor_object.h"
+#include "dock_utils.h"
 
 namespace UFOEngineStudio{
 
@@ -20,7 +21,7 @@ ActorNode::ActorNode(){
     editor_object = std::make_unique<ActorEditorObject>();
 }
 
-void ActorNode::Update(int _file_index, ActorComposerTab* _actor_composer, ActorNode* _parent, std::string path , ProgramState* _program){
+void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, ActorNode* _parent, std::string path , ProgramState* _program){
     bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+std::to_string(id)).c_str() : (name+" ("+actor_type+")"+"###Directory"+std::to_string(id)).c_str());
 
     if(editing_name){
@@ -74,20 +75,23 @@ void ActorNode::Update(int _file_index, ActorComposerTab* _actor_composer, Actor
         ImGui::End();
     }
 
-    if(ImGui::IsItemClicked()){
-        show_properties = true;
-
-        //_program->drag_drop_stack.push_back(DragDrop{this, _parent});
-    }
-
     if(show_properties){
-        ImGui::Begin(("Instance Properties##"+std::to_string(id)).c_str());
+
+        ImGui::Begin(("Instance Properties " + name + "###Instance Properties").c_str());
 
         editor_object->PropertyUpdate(_program);
 
         ImGui::End();
     }
 
+    if(ImGui::IsItemClicked()){
+        was_selected_this_frame = true;
+        _level_editor_tab->something_was_selected_this_frame = true;
+
+        //_program->drag_drop_stack.push_back(DragDrop{this, _parent});
+    }
+
+    //Unconventional use of BeginDrawDropSource and SetDragDropPayload
     if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
         ImGui::SetDragDropPayload("CONTENT_BROWSER_DATA", this, sizeof(this));
 
@@ -136,7 +140,7 @@ void ActorNode::Update(int _file_index, ActorComposerTab* _actor_composer, Actor
     if(folder_opened){
 
         for(int index = 0; index < actor_nodes.size(); index++){
-            actor_nodes[index]->Update(index,_actor_composer,this,(_parent ? path+"/" : "")+name,_program);
+            actor_nodes[index]->Update(index,_level_editor_tab,this,(_parent ? path+"/" : "")+name,_program);
         }
 
         ImGui::TreePop();

@@ -11,8 +11,8 @@ enum SplitDirections{
     VERTICAL
 };
 
-inline void ImGuiDockSpaceFill(int _dock_space_id, ImVec2 _size, const std::string& _first_sub_window_name){
-    if(!ImGui::DockBuilderGetNode(_dock_space_id)){
+inline void ImGuiDockSpaceFill(int _dock_space_id, ImVec2 _size, const std::string& _first_sub_window_name, bool _do_once = true){
+    if(!ImGui::DockBuilderGetNode(_dock_space_id) || !_do_once){
         ImGui::DockBuilderRemoveNode(_dock_space_id);
         ImGui::DockBuilderAddNode(_dock_space_id, ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(_dock_space_id,_size);
@@ -24,8 +24,8 @@ inline void ImGuiDockSpaceFill(int _dock_space_id, ImVec2 _size, const std::stri
     }
 }
 
-inline void ImGuiDockSpaceSplit(int _dock_space_id, ImVec2 _size, const std::string& _first_sub_window_name, const std::string& _second_sub_window_name, SplitDirections _split_direction){
-    if(!ImGui::DockBuilderGetNode(_dock_space_id)){
+inline void ImGuiDockSpaceSplit(int _dock_space_id, ImVec2 _size, const std::string& _first_sub_window_name, const std::string& _second_sub_window_name, SplitDirections _split_direction, bool _do_once = true){
+    if(!ImGui::DockBuilderGetNode(_dock_space_id) || !_do_once){
         switch(_split_direction){
             case SplitDirections::HORIZONTAL :
             {

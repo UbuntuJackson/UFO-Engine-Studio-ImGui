@@ -45,7 +45,7 @@ public:
     virtual void Update(ActorEditorObject* _parent_editor_object, Vector2f _parent_position){
         Vector2f global_position = _parent_position + local_position_handle->AsVector2f();
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        Console::PrintLine("EditorObject", global_position.x, global_position.y);
+        //Console::PrintLine("EditorObject", global_position.x, global_position.y);
         
         draw_list->AddRectFilled(ImAdd(ImVec2(global_position.x, global_position.y), ImGui::GetWindowPos()),
             ImAdd(ImVec2(global_position.x+16.0f, global_position.y+16.0f), ImGui::GetWindowPos()),ImColor(255,0,0,255));

@@ -6,7 +6,7 @@
 #include "program_state.h"
 #include "text_editor_tab.h"
 #include "../file/file.h"
-#include "actor_composer_tab.h"
+#include "level_editor_tab.h"
 #include <filesystem>
 
 namespace UFOEngineStudio{
@@ -52,11 +52,11 @@ namespace UFOEngineStudio{
                         else if(extension == "ason"){
                             JsonDictionary d = JsonVariant::Read(full_path);
 
-                            auto u_actor_composer_tab = std::make_unique<ActorComposerTab>(_program);
-                            u_actor_composer_tab->actor->ReadFromJson(&d);
-                            u_actor_composer_tab->name = file_name;
-                            u_actor_composer_tab->path = full_path;
-                            _program->tabs.push_back(std::move(u_actor_composer_tab));
+                            auto u_level_editor_tab = std::make_unique<LevelEditorTab>(_program, "");
+                            u_level_editor_tab->actor->ReadFromJson(&d);
+                            u_level_editor_tab->name = file_name;
+                            u_level_editor_tab->path = full_path;
+                            _program->tabs.push_back(std::move(u_level_editor_tab));
                             
                         }
                         else{
@@ -93,7 +93,11 @@ namespace UFOEngineStudio{
             }
 
             if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
-                ImGui::SetDragDropPayload("CONTENT_BROWSER_DATA", this, sizeof(this));
+
+                Console::PrintLine("BeginDragDropSource");
+                path_for_drag_drop_payload_use_only = _program->working_directory_path + path+"/"+file_name;
+
+                ImGui::SetDragDropPayload("FROM_FILE", this, sizeof(*this));
     
                 ImGui::EndDragDropSource();
             }

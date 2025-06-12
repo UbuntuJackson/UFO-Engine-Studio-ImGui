@@ -7,7 +7,7 @@
 #include "../console/console.h"
 #include "program_state.h"
 #include "file_node.h"
-#include "actor_composer_tab.h"
+#include "level_editor_tab.h"
 
 namespace UFOEngineStudio{
 
@@ -32,7 +32,7 @@ inline void OnOpenFolder(void *_userdata, const char * const *_filelist, int _fi
 
 inline void OnNewActorFile(void *_tab, const char * const *_filelist, int _filter){
     if(*_filelist == nullptr) return; //Should file not have been selected
-    ActorComposerTab* tab = (ActorComposerTab*)_tab;
+    LevelEditorTab* tab = (LevelEditorTab*)_tab;
 
     std::string name = std::string(*_filelist).substr(std::string(*_filelist).find_last_of("/")+1);
 
@@ -55,8 +55,8 @@ inline void MainMenuBar(ProgramState* _program){
                 SDL_ShowOpenFolderDialog(&OnOpenFolder , _program, _program->window, file_location, false);
             }
 
-            if(ImGui::MenuItem("New Actor File")){
-                _program->tabs.push_back(std::make_unique<ActorComposerTab>(_program));
+            if(ImGui::MenuItem("New Level/Actor File")){
+                _program->tabs.push_back(std::make_unique<LevelEditorTab>(_program, ""));
                 
                 
             }

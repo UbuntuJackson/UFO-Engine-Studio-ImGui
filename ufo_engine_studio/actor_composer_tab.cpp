@@ -1,3 +1,9 @@
+/*
+
+    This class is currently unused
+
+*/
+
 #include <memory>
 #include <SDL3/SDL.h>
 #include "../imgui/imgui.h"
@@ -72,7 +78,7 @@ void ActorComposerTab::OnActive(ImGuiID _local_dockspace_id, ProgramState* _prog
 
     ImGui::Begin("Actor Composition");
 
-    actor->Update(0, this, nullptr, "", _program_state);
+    actor->Update(0, nullptr, nullptr, "", _program_state);
     actor->DeleteActorNodesMarkedForDeletion();
     actor->AddActorNodesRecursive();
 
