@@ -36,6 +36,21 @@ JsonDictionary PropertyInt::AsJson(){
     return j;
 }
 
+//PropertyBool
+PropertyBool::PropertyBool(std::string _name, bool _value) : Property(_name), checked{_value}{}
+
+void PropertyBool::Update(ProgramState* _program_state){
+    ImGui::Checkbox((name+"##"+std::to_string(id)).c_str(), &checked);
+}
+
+JsonDictionary PropertyBool::AsJson(){
+    JsonDictionary j = JsonDictionary();
+    j.Set("name", name);
+    j.Set("value", checked);
+    j.Set("type", "bool");
+    return j;
+}
+
 //PropertyString
 
 PropertyString::PropertyString(std::string _name, std::string _text) : Property(_name), text{_text}{}

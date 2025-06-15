@@ -44,6 +44,8 @@ public:
 
     ActorNode();
 
+    void UpdateExportedAttributes(ProgramState* _program);
+
     std::vector<std::unique_ptr<ActorNode>> actor_nodes;
     std::vector<std::unique_ptr<ActorNode>> actor_nodes_to_be_added_at_end_of_frame;
 

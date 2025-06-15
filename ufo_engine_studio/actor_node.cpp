@@ -21,6 +21,14 @@ ActorNode::ActorNode(){
     editor_object = std::make_unique<ActorEditorObject>();
 }
 
+void ActorNode::UpdateExportedAttributes(ProgramState* _program){
+    if(_program->should_refresh_properties_on_all_nodes) editor_object->UpdateExportedAttributes(_program);
+
+    for(const auto& actor_node : actor_nodes){
+        actor_node->UpdateExportedAttributes(_program);
+    }
+}
+
 void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, ActorNode* _parent, std::string path , ProgramState* _program){
     bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+std::to_string(id)).c_str() : (name+" ("+actor_type+")"+"###Directory"+std::to_string(id)).c_str());
 
@@ -40,12 +48,22 @@ void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, Actor
 
     if(editing_type){
         ImGui::Begin("Change ActorNode Type");
-        for(const auto& [index,actor_class] : _program->project.actor_classes){
+        for(const auto& actor_class : _program->project.actor_classes){
             if(ImGui::Button(actor_class.name.c_str())){
                 actor_type = actor_class.name;
 
                 //Generate a new object here, only instantiates an ActorEditorObject for now.s
                 editor_object = CreateEditorObjectWithTypeFromString(actor_class.name);
+
+                editor_object->exported_properties.clear();
+
+                if(actor_class.is_custom_class){
+                    for(const auto& property : actor_class.exported_properties){
+                        editor_object->exported_properties.push_back(property->Copy());
+                    }
+
+                    editor_object->class_name = actor_class.name;
+                }
 
                 editing_type = false;
             }
@@ -57,7 +75,7 @@ void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, Actor
     if(add_actor_node_dialogue_open){
         ImGui::Begin("Add ActorNode");
 
-        for(const auto& [index,actor_class] : _program->project.actor_classes){
+        for(const auto& actor_class : _program->project.actor_classes){
             if(ImGui::Button(actor_class.name.c_str())){
                 auto new_actor_node = std::make_unique<ActorNode>();
                 new_actor_node->actor_type = actor_class.name;
@@ -67,8 +85,17 @@ void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, Actor
 
                 new_actor_node->editing_type = false;
 
+                if(actor_class.is_custom_class){
+                    for(const auto& property : actor_class.exported_properties){
+                        new_actor_node->editor_object->exported_properties.push_back(property->Copy());
+                    }
+
+                    new_actor_node->editor_object->class_name = actor_class.name;
+                }
+
                 actor_nodes_to_be_added_at_end_of_frame.push_back(std::move(new_actor_node));
                 add_actor_node_dialogue_open = false;
+
             }
         }
 
@@ -102,7 +129,7 @@ void ActorNode::Update(int _file_index, LevelEditorTab* _level_editor_tab, Actor
     if(ImGui::BeginDragDropTarget()){
 
         if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
-            Console::PrintLine("Drop");
+            
             //_program->drag_drop_stack.back().move_to_folder = this;
             //_program->drag_drop_stack.push_back();
         }
@@ -160,7 +187,6 @@ void ActorNode::AddActorNodesRecursive(){
 }
 
 void ActorNode::DeleteActorNodesMarkedForDeletion(){
-    //Console::PrintLine(file_name);
 
     for(int i = actor_nodes.size()-1; i >= 0; i--){
         if(actor_nodes[i]->to_be_deleted) actor_nodes.erase(actor_nodes.begin() + i);

@@ -63,7 +63,12 @@ inline void MainMenuBar(ProgramState* _program){
 
             if(ImGui::MenuItem("Save File", "CTRL+S")){ //Shortcut does not work and I have no idea why
                 if(_program->active_tab) _program->active_tab->OnSave(_program);
-                Console::PrintLine("Saving...");
+                
+            }
+
+            if(ImGui::MenuItem("Refresh")){ //Shortcut does not work and I have no idea why
+                _program->SearchWorkingDirectoryForExposedActorClasses();
+                
             }
 
             ImGui::EndMenu();

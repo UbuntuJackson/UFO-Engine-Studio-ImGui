@@ -19,9 +19,15 @@ ProgramState::ProgramState(SDL_Renderer* _renderer){
     assert(example_texture != nullptr);
     SDL_DestroySurface(example_surface);
 
+    project.actor_classes.push_back(ActorClass{"Actor", "<actor.h>"});
+    project.actor_classes.push_back(ActorClass{"Animation", "<animation.h>"});
+    project.actor_classes.push_back(ActorClass{"SpriteReference", "<sprite_reference.h>"});
+    project.actor_classes.push_back(ActorClass{"Camera", "<camera.h>"});
+    project.actor_classes.push_back(ActorClass{"TileMap", "<tile_map.h>"});
+
     //tabs.push_back(std::make_unique<UFOEngineStudio::ManualTab>(this,"LevelTab1"));
 
-    project.AddActorVariantFromActorClass(ActorClass{"Actor", "<actor.h>"}, "Engine");
+    /*project.AddActorVariantFromActorClass(ActorClass{"Actor", "<actor.h>"}, "Engine");
     project.AddActorVariantFromActorClass(ActorClass{"Animation", "<animation.h>"}, "Engine");
     project.AddActorVariantFromActorClass(ActorClass{"SpriteReference", "<sprite_reference.h>"}, "Engine");
 
@@ -43,7 +49,7 @@ ProgramState::ProgramState(SDL_Renderer* _renderer){
     project.AddActorVariantFromActorClass(ActorClass{"Spawner"}, "Actors");
     project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
     project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
-    project.AddActorVariantFromActorClass(ActorClass{"DraggableObject"}, "TestActors");
+    project.AddActorVariantFromActorClass(ActorClass{"DraggableObject"}, "TestActors");*/
 }
 
 void ProgramState::WriteProjectFile(std::string _path){
@@ -65,7 +71,7 @@ void ProgramState::OpenProjectFile(std::string _path){
 
     JsonDictionary project_json = JsonVariant::Read(_path);
 
-    project = Project{_path, true, project_json.Get("project_name").AsString()};
+    project = Project{true, project_json.Get("project_name").AsString()};
 
     auto& actor_classes = project_json.Get("actor_classes").AsArray().Iterable();
 
@@ -80,6 +86,7 @@ void ProgramState::OpenProjectFile(std::string _path){
 void ProgramState::OpenFolder(std::string _path){
     opened_directory = FileNode::ParseFolder(_path);
     opened_directory->file_name = "";
+    //opened_directory->id = -1;
     working_directory_path = _path;
 }
 

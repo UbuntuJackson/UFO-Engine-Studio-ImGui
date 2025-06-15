@@ -18,7 +18,7 @@ public:
     bool opened = true;
     bool is_edited = false;
 
-    void Update(ProgramState* _program_state);
+    virtual void Update(ProgramState* _program_state);
     virtual bool DetermineIfEdited();
     virtual void OnActive(ImGuiID _local_dockspace_id, ProgramState* _program_state);
     virtual void OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state);

@@ -33,7 +33,6 @@ namespace UFOEngineStudio{
                 }
 
                 if(!tab_already_open){
-                    Console::PrintLine("Trying to open tab...");
 
                     std::string full_path = _program->working_directory_path+path+"/"+file_name;
 
@@ -71,7 +70,7 @@ namespace UFOEngineStudio{
             }
 
             if(ImGui::IsItemClicked()){
-                Console::PrintLine("This file is on path",path+"/"+file_name);
+                
                 _program->drag_drop_stack.push_back(DragDrop{this, _parent, _program->working_directory_path + path});
             }
     
@@ -79,7 +78,6 @@ namespace UFOEngineStudio{
             if(ImGui::BeginDragDropTarget()){
 
                 if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
-                    Console::PrintLine("Drop");
 
                     //Move to parent folder to place next to neighbouring folder
                     _program->drag_drop_stack.back().move_to_folder = _parent;
@@ -128,7 +126,7 @@ namespace UFOEngineStudio{
                 int res = std::remove(full_path.c_str());
                 if(res) Console::PrintLine("TreeFile::Update(): Failture upon trying to remove", full_path.c_str());
                 to_be_deleted = true;
-                Console::PrintLine(file_name);
+                
             }
             if(ImGui::MenuItem("New File")){
                 _parent->file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<TreeFile>(true));

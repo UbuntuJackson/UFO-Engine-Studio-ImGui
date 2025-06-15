@@ -23,6 +23,12 @@ LevelEditorTab::LevelEditorTab(ProgramState* _program_state,std::string _file){
     actor->name = "LevelRoot";
 }
 
+void LevelEditorTab::Update(ProgramState* _program_state){
+    Tab::Update(_program_state);
+
+    actor->UpdateExportedAttributes(_program_state);
+}
+
 void LevelEditorTab::ConvertJsonToCPP(std::string& _header_file , std::vector<std::string>& _used_actor_classes, JsonDictionary* _parent_json, ProgramState* _program_state){
 
     std::string parent_name = _parent_json->Get("name").AsString();
@@ -102,7 +108,7 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
         header_file+= "\n";
         header_file+= "}\n";
         for(const auto& used_actor_class : used_actor_classes_to_include){
-            for(const auto& [index, actor_class] : _program_state->project.actor_classes){
+            for(const auto& actor_class : _program_state->project.actor_classes){
                 if(actor_class.header_file != "" && actor_class.name == used_actor_class) includes+= "#include "+actor_class.header_file+"\n";
             }
         }
@@ -117,7 +123,7 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
         f.Write(_program_state->working_directory_path + "/" + actor->name + "_generated.h");
 
         //Need to reload the working directory.
-        _program_state->OpenFolder(_program_state->working_directory_path);
+        _program_state->should_refresh_working_directory = true;
     }
 
     ImGuiID level_content_browser_dock = ImGui::GetID("LevelContentBrowserDock");
@@ -128,14 +134,11 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
 
     ImGui::Begin("Classes");
 
-    std::string last_category;
-
     int unique_id_counter = 0;
 
-    for(const auto& actor_variant : _program_state->project.actor_categories){
-        if(last_category != actor_variant.category) ImGui::Text(("-- "+actor_variant.category + " --").c_str());
+    TreeFile* header_file_with_class_to_add = nullptr;
 
-        if(last_category != actor_variant.category) ImGui::Separator();
+    for(const auto& actor_class : _program_state->project.actor_classes){
         
         bool pressed = ImGui::ImageButton(("###ClassIconUniqueEntry"+std::to_string(unique_id_counter)).c_str(), (ImTextureID)(intptr_t)_program_state->example_texture, ImVec2(_program_state->example_texture->w, _program_state->example_texture->h));
 
@@ -151,7 +154,8 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
                     if(file->file_name.substr(file->file_name.find_last_of(".")) == ".h" ||
                         file->file_name.substr(file->file_name.find_last_of(".")) == ".hpp")
                     {
-                        _program_state->ImportHeaderFileToProject(((TreeFile*)file)->path_for_drag_drop_payload_use_only);
+                        //adding while iterating is not cool!
+                        header_file_with_class_to_add = (TreeFile*)file;
                     }
                 }
             }
@@ -164,10 +168,14 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
         }
 
         ImGui::SameLine();
-        ImGui::Text(_program_state->project.actor_classes[actor_variant.class_id].name.c_str());
+        ImGui::Text((actor_class.name).c_str());
 
-        last_category = actor_variant.category;
         unique_id_counter++;
+    }
+
+    //Need to delay the importing of header file to avoid adding an actor_class while iterator though actor_classes
+    if(header_file_with_class_to_add != nullptr){
+        _program_state->ImportHeaderFileToProject(header_file_with_class_to_add->path_for_drag_drop_payload_use_only);
     }
 
     ImGui::End();
@@ -253,7 +261,7 @@ void LevelEditorTab::OnSave(ProgramState* _program_state){
 
         SDL_ShowSaveFileDialog(&OnNewActorFile , this, _program_state->window, nullptr, 0, file_location);
     }
-    _program_state->OpenFolder(_program_state->working_directory_path);
+    _program_state->should_refresh_working_directory = true;
 }
 
 }

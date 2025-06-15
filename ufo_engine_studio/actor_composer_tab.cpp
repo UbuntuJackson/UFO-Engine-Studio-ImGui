@@ -123,7 +123,7 @@ void ActorComposerTab::OnActive(ImGuiID _local_dockspace_id, ProgramState* _prog
         f.Write(_program_state->working_directory_path + "/" + actor->name + "_generated.h");
 
         //Need to reload the working directory.
-        _program_state->OpenFolder(_program_state->working_directory_path);
+        _program_state->should_refresh_working_directory = true;
     }
 
     ImGui::End();

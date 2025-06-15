@@ -15,6 +15,8 @@ public:
 
     std::string name = "Hello World";
 
+    bool stays_in_vector = true;
+
     int id = 0;
 
     Property(std::string _name);
@@ -42,6 +44,22 @@ public:
     }
 
 };
+
+class PropertyBool : public Property{
+    public:
+        bool checked = false;
+    
+        PropertyBool(std::string _name, bool _checked);
+    
+        void Update(ProgramState* _program_state);
+    
+        JsonDictionary AsJson();
+    
+        std::unique_ptr<Property> Copy(){
+            return std::make_unique<PropertyBool>(name, checked);
+        }
+    
+    };
 
 class PropertyString : public Property{
 public:

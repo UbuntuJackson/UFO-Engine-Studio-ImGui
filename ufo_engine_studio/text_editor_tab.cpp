@@ -3,6 +3,7 @@
 #include "text_editor_tab.h"
 #include "../console/console.h"
 #include "dock_utils.h"
+#include "program_state.h"
 
 namespace UFOEngineStudio{
 
@@ -38,6 +39,7 @@ void TextEditorTab::OnSave(ProgramState* _program_state){
         f.Write(path);
 
         last_saved_text = text;
+        _program_state->should_search_working_directory_for_exposed_actor_classes = true;
     }
 }
 

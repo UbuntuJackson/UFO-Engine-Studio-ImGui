@@ -24,7 +24,7 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
             if(!is_new_directory) std::filesystem::rename(_program->working_directory_path + path + "/" + old_file_name, _program->working_directory_path + "/" + path + "/" + file_name);
             else{
                 std::string full_path = _program->working_directory_path + path+"/"+file_name;
-                Console::PrintLine(full_path);
+                
                 std::filesystem::create_directory(full_path);
             }
             is_new_directory = false;
@@ -45,7 +45,7 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
     if(ImGui::BeginDragDropTarget()){
 
         if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
-            Console::PrintLine("Drop");
+            
             _program->drag_drop_stack.back().move_to_folder = this;
             _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path + "/" + file_name;
             //_program->drag_drop_stack.push_back();

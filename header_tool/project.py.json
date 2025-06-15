@@ -1,0 +1,20 @@
+{
+    "variables": [
+        {
+            "data_type": "class",
+            "name": "Pingu",
+            "default_value": "Actor",
+            "attributes": [
+                {
+                    "name": "export_class",
+                    "value": [
+                        [
+                            "bool",
+                            "true"
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -63,7 +63,6 @@ void FileNode::AddFileNodesRecursive(){
 }
 
 void FileNode::DeleteFileNodesMarkedForDeletion(){
-    //Console::PrintLine(file_name);
 
     for(int i = file_nodes.size()-1; i >= 0; i--){
         if(file_nodes[i]->to_be_deleted){
@@ -122,12 +121,35 @@ void FileNode::Sort(){
 }
 
 void FileNode::Traverse(){
-    Console::PrintLine("Name:", file_name,"Size:", file_nodes.size());
-    //Console::PrintLine("It:", file_nodes.end()->get());
 
     for(auto iterator = file_nodes.begin(); iterator != file_nodes.end(); ++iterator){
         (*iterator)->Traverse();
     }
+}
+
+void FileNode::SearchForHeaderFiles(ProgramState* _program, std::string _path){
+
+    std::string full_path = _path+file_name;
+
+    if(file_name != ""){   
+    
+        full_path = _path+"/"+file_name; 
+    }
+
+    if(file_name.find(".") != file_name.npos){
+        if(file_name.substr(file_name.find_last_of(".")) == ".h" ||
+                            file_name.substr(file_name.find_last_of(".")) == ".hpp")
+        {
+            Console::PrintLine("Found headerfile:", _program->working_directory_path+full_path);
+            _program->ImportHeaderFileToProject(_program->working_directory_path+full_path);
+        }
+    }
+
+    for(const auto& file_node : file_nodes){
+        file_node->SearchForHeaderFiles(_program, full_path);
+    }
+    
+
 }
 
 }

@@ -46,6 +46,8 @@ public:
 
     void Traverse();
 
+    void SearchForHeaderFiles(ProgramState* _program, std::string _path);
+
     FileNode(const FileNode&) = delete;
     //FileNode(FileNode&) = delete;
 

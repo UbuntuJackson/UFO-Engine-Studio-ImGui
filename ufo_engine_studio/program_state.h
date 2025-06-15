@@ -11,32 +11,17 @@
 #include <algorithm>
 #include <filesystem>
 #include "../json/json_variant.h"
+#include <iostream>
 
 namespace UFOEngineStudio{
 
 struct Project{
-    std::string path;
+    
     bool is_valid;
     std::string name;
-
-    std::map<int, ActorClass> actor_classes;
-    std::vector<ActorVariant> actor_categories;
     
-    void AddActorVariantFromFile(std::string _file){
+    std::vector<ActorClass> actor_classes;
 
-    }
-
-    void AddActorVariantFromActorClass(ActorClass _actor_class, const std::string& _category){
-        for(auto&& [actor_class_id,actor_class] : actor_classes){
-            if(actor_class.name == _actor_class.name){
-                actor_categories.push_back(ActorVariant{actor_class_id, _category});
-                return;
-            }
-        }
-
-        actor_classes[actor_classes.size()] = _actor_class;
-        actor_categories.push_back(ActorVariant{int(actor_classes.size()-1), _category});
-    }
 };
 
 struct DragDrop{
@@ -53,12 +38,16 @@ public:
 
     SDL_Window* window = nullptr;
 
-    Project project = Project{"None", false};
+    Project project = Project{false};
     bool show_new_project_dialogue = false;
     std::string pending_project_name = "";
 
     std::vector<std::unique_ptr<UFOEngineStudio::Tab>> tabs;
     UFOEngineStudio::Tab* active_tab = nullptr;
+
+    bool should_refresh_properties_on_all_nodes = false;
+
+    bool should_refresh_working_directory = false;
 
     std::string working_directory_path;
     std::unique_ptr<FileNode> opened_directory;
@@ -82,10 +71,88 @@ public:
     //This opens a folder but will also be used when opening a project
     void OpenFolder(std::string _path);
 
-    void ImportHeaderFileToProject(std::string _path){
-        Console::PrintLine("Interfacing with UFO-Project Manager starts here, reading from path:",_path);
+    bool should_search_working_directory_for_exposed_actor_classes = true;
 
+    void SearchWorkingDirectoryForExposedActorClasses(){
+        Console::PrintLine("Refreshing working directory:", working_directory_path);
+        opened_directory->SearchForHeaderFiles(this, "");
+    }
+
+    void ImportHeaderFileToProject(std::string _path){
+
+        int result = system((std::string("cd .. && cd header_tool && python3 project.py ")+_path).c_str());
+        if(result) Console::PrintLine("ProgramState::ImportHeaderFileToProject() Result returned true");
         
+        std::string exported_variables_supposed_location = _path + "_exported_variables.json";
+
+        if(!File::Exists(exported_variables_supposed_location)) return;
+
+        JsonDictionary d = JsonVariant::Read(exported_variables_supposed_location);
+
+        std::string class_name = "";
+        std::vector<std::unique_ptr<Property>> exported_properties;
+        for(const auto& variable : d.Get("exported_variables").AsArray().Iterable()){
+            
+            std::string local_name = variable->AsDictionary().Get("name").AsString();
+            std::string data_type = variable->AsDictionary().Get("data_type").AsString();
+            std::string default_value = variable->AsDictionary().Get("default_value").AsString();
+
+            if(data_type == "class"){
+                if(class_name.empty()) class_name = local_name;
+                else Console::PrintLine("[x] UFO-Engine Studio: Error, two classes found in", _path);
+            }
+            else{
+                try{
+                    if(data_type == "std::string"){
+                        std::string text = default_value;
+                        auto p = std::make_unique<PropertyString>(local_name, text);
+                        exported_properties.push_back(std::move(p));
+                    }
+                    if(data_type == "bool"){
+                        bool checked = (default_value == "true");
+                        auto p = std::make_unique<PropertyBool>(local_name, checked);
+                        exported_properties.push_back(std::move(p));
+                    }
+                    if(data_type == "int"){
+                        int value = std::stoi(default_value);
+                        auto p = std::make_unique<PropertyInt>(local_name, value);
+                        exported_properties.push_back(std::move(p));
+                    }
+                    if(data_type == "float"){
+                        bool value = std::stof(default_value);
+                        auto p = std::make_unique<PropertyFloat>(local_name, value);
+                        exported_properties.push_back(std::move(p));
+                    }
+                }
+                catch(const std::invalid_argument& err){
+                    Console::PrintLine("[x] UFO-Engine Studio: Error, in ProgramState::ImportHeaderFileToProject()\n",
+                        "    Some sort of convetion error happened with argument '"+default_value+"' with function call" ,err.what(),
+                        "\n    in file:", _path);
+                }
+            }
+
+        }
+
+        //Produce the generated.h and sh&t
+
+        bool class_already_added = false;
+
+        for(int actor_class_index = project.actor_classes.size()-1; actor_class_index >= 0; actor_class_index--){
+            if(project.actor_classes[actor_class_index].name == class_name){
+                project.actor_classes.erase(project.actor_classes.begin()+actor_class_index);
+            }
+        }
+
+        project.actor_classes.push_back(ActorClass{class_name, _path, true});
+
+        for(auto&& p : exported_properties){
+            
+            project.actor_classes.back().exported_properties.push_back(std::move(p));
+        }
+
+        //Need to reload the working directory.
+        should_refresh_working_directory = true;
+        should_refresh_properties_on_all_nodes = true;
     }
 
     //This runs after the directory tree is updated
@@ -158,9 +225,20 @@ public:
             opened_directory->Sort();
         }
 
-        std::sort(project.actor_categories.begin(), project.actor_categories.begin(), [](const ActorVariant& _a, const ActorVariant& _b){
+        if(should_refresh_working_directory){
+            OpenFolder(working_directory_path);
+        }
+        should_refresh_working_directory = false;
+
+        should_refresh_properties_on_all_nodes = false;
+
+        if(should_search_working_directory_for_exposed_actor_classes) SearchWorkingDirectoryForExposedActorClasses();
+
+        should_search_working_directory_for_exposed_actor_classes = false;
+
+        /*std::sort(project.actor_categories.begin(), project.actor_categories.begin(), [](const ActorVariant& _a, const ActorVariant& _b){
             return _a.category < _b.category;
-        });
+        });*/
     } 
 
     void CleanUp();
