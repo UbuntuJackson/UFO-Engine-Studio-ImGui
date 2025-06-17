@@ -43,7 +43,7 @@ def evaluate_variable_line(_word):
 
 
 #Multiline comments are evaluated to single line comments
-def evaluate_comment(_comment, _line_count):
+def evaluate_comment(_log, _comment, _line_count):
     word = ""
     is_attributes = False
 
@@ -76,7 +76,7 @@ def evaluate_comment(_comment, _line_count):
                         ttype = "String"
                         word = word[:-1]
                         word = word [1:]
-                        print("word was cut:", word)
+                        #_log.append("word was cut:", word)
                 
                 if ttype != 'String':
                     found_dot = False
@@ -85,8 +85,8 @@ def evaluate_comment(_comment, _line_count):
 
                     for i in word:
                         if i == '-' and first_round:
-                            print("UFO Project Manager: Syntax error at line: x", "No mathmatical expressions allowed in UPM attributes", word)
-                            sys.exit()
+                            _log.append("UFO Project Manager: Syntax error at line: x", "No mathmatical expressions allowed in UPM attributes "+ word)
+                            return []
                         first_round = True
                         
                         if i not in '1234567890.-':
@@ -98,8 +98,8 @@ def evaluate_comment(_comment, _line_count):
                             found_dot = True
                             continue
                         if i == '.' and found_dot:
-                            print("UFO Project Manager: Syntax error at line: x", "Too comma signs in number", word)
-                            sys.exit()
+                            _log.append("UFO Project Manager: Syntax error at line: " + str(_line_count) + "Too comma signs in number " + word)
+                            return []
                     
                     if not found_dot and not is_not_numerical:
                         ttype = 'int'
@@ -110,7 +110,7 @@ def evaluate_comment(_comment, _line_count):
                         if word == 'true' or word == 'false':
                             ttype = 'bool'
                         else:
-                            print("[x] UPM Header Tool: Error, argument of unknown datatype", word, "at line:", _line_count)
+                            _log.append("[x] UPM Header Tool: Error, argument of unknown datatype "+ word + " at line: "+ str(_line_count))
 
                 attributes[-1].values.append((ttype,word))
                 word = ""
@@ -129,8 +129,8 @@ def evaluate_comment(_comment, _line_count):
             
             attributes[-1].name = word
             awaiting_arguments = True
-            print("---------------------------------------------")
-            print("Found name", word)
+            _log.append("---------------------------------------------")
+            _log.append("Found name: "+ word)
             word = ""
 
         continue
@@ -139,13 +139,13 @@ def evaluate_comment(_comment, _line_count):
     attributes.pop()
 
     for i in attributes:
-        print("-----------------------------------")
-        print("Name:",i.name)
-        print("Values:",i.values)
+        _log.append("-----------------------------------")
+        _log.append("Name: "+i.name)
+        _log.append("Values: "+str(i.values))
     
     return attributes
 
-def export_variables(_source_file):
+def export_variables(_log, _source_file):
     variables_to_export = []
     line_count : int = 1
 
@@ -182,13 +182,13 @@ def export_variables(_source_file):
             if len(multi_line_ender_progress) > 0 and character != '/': multi_line_ender_progress = ""
 
             if character == '*':
-                print("Found *")
+                #_log.append("Found *")
                 multi_line_ender_progress += '*'
 
             if multi_line_ender_progress == '*' and character == '/':
                 
                 awaiting_comment = False
-                print("Found end of multi line comment",word.strip()[:-2],'end')
+                #_log.append("Found end of multi line comment "+word.strip()[:-2]+' end')
                 word = word.strip()[:-2]
                 multi_line_ender_progress = ''
                 completed_single_line_comment = True
@@ -214,7 +214,7 @@ def export_variables(_source_file):
                     stripped_string+=word[index]
             
             #print(stripped_string)
-            currently_evaluated_attributes = evaluate_comment(stripped_string, line_count)
+            currently_evaluated_attributes = evaluate_comment(_log,stripped_string, line_count)
 
             #Was there an attribute list?
             if len(currently_evaluated_attributes) == 0:
@@ -245,7 +245,7 @@ def export_variables(_source_file):
 
         if word == '//':
             comment_ender = '\n'
-            print("Begin comment at line", line_count)
+            _log.append("Begin comment at line " + str(line_count))
             word = ""
 
         if currently_evaluated_attributes != None and line_count == line_number_before_variable+1:
@@ -254,14 +254,14 @@ def export_variables(_source_file):
                 if variables_to_export[-1].name != None:
                     if character in ['\n', '{']:
                         variables_to_export[-1].default_value = word
-                        print(word)
+                        #print(word)
                         currently_evaluated_attributes = None
 
             #Check if there is a base class that is inherited from
             if (variables_to_export[-1].data_type == 'class' and character in ['\n', '{']):
                 if variables_to_export[-1].default_value == None:
-                    print("[x] UPM Header Tool: Error, class needs to inherit from UFO-Engine class", line_count)
-                    sys.exit()
+                    _log.append("[x] UPM Header Tool: Error, class needs to inherit from UFO-Engine class" + str(line_count))
+                    return []
 
             #Evaluating whether or not there is a variable to attach attributes to
             if character in [' ', '\n', ';', '=']:
@@ -276,8 +276,8 @@ def export_variables(_source_file):
                     if character in[';', '\n']:
                         currently_evaluated_attributes = None
                         if not variables_to_export[-1].found_initialisation:
-                            print("[x] UPM Header Tool: Error, no default value was set at line", line_count)
-                            sys.exit()
+                            _log.append("[x] UPM Header Tool: Error, no default value was set at line" + str(line_count))
+                            return []
                     
                     if variables_to_export[-1].found_initialisation:
                         if word == '': continue
@@ -286,19 +286,19 @@ def export_variables(_source_file):
                             word = word[:-1]
                             word = word [1:]
                         variables_to_export[-1].default_value = word
-                        print(variables_to_export[-1].data_type, variables_to_export[-1].name, "'" + variables_to_export[-1].default_value + "'")
+                        _log.append(variables_to_export[-1].data_type + " " + variables_to_export[-1].name + " '" + variables_to_export[-1].default_value + "'")
                         
                         #This is where it searches for the next variable
                 
                 elif variables_to_export[-1].data_type != None:
                     variables_to_export[-1].name = word
-                    print("------------------------------------------------")
-                    print("Found name for variable:", word)
+                    _log.append("------------------------------------------------")
+                    _log.append("Found name for variable: "+ word)
 
                 elif word in ['int', 'std::string', 'float', 'bool']:
                     if word == '': continue
-                    print("------------------------------------------------")
-                    print("Found variable under attribute list", word)
+                    _log.append("------------------------------------------------")
+                    _log.append("Found variable under attribute list "+ word)
                     variables_to_export[-1].attributes = currently_evaluated_attributes
                     variables_to_export[-1].data_type = word
                 elif word not in ['int', 'std::string', 'float', 'bool']:
@@ -307,10 +307,10 @@ def export_variables(_source_file):
                         
                         variables_to_export[-1].attributes = currently_evaluated_attributes
                         variables_to_export[-1].data_type = word
-                        print("[!] UPM Header Tool: Found class",word, "at line", line_count)
+                        _log.append("[!] UPM Header Tool: Found class "+word+ " at line "+ str(line_count))
                     else:
-                        print("[x] UPM Header Tool: Error, Unsupported datatype '"+word+"' at line", line_count, "character =", character)
-                        sys.exit()
+                        _log.append("[x] UPM Header Tool: Error, Unsupported datatype '"+word+"' at line "+ str(line_count)+ " character = " + character)
+                        return []
 
 
         if character in [' ', '\n', '=', ';']:

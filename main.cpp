@@ -23,7 +23,6 @@
 // Main code
 int main()
 {
-    UFOProjectManager();
 
     // Setup SDL
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
@@ -155,6 +154,13 @@ int main()
 
             ImGui::End();
 
+            ImGui::Begin("TabBarWindow");
+
+            ImGuiID dock_space_id_tabbar = ImGui::GetID("TabBarWindowDockSpace");
+            UFOEngineStudio::ImGuiDockSpaceSplit(dock_space_id_tabbar, viewport->Size, "TabBar", "Log", UFOEngineStudio::SplitDirections::VERTICAL);
+            ImGui::DockSpace(dock_space_id_tabbar, ImVec2(0.0f,0.0f), 0);
+            ImGui::End();
+
             ImGui::Begin("File Tree");
 
             if(program.opened_directory.get() != nullptr){
@@ -163,13 +169,19 @@ int main()
 
             ImGui::End();
 
-            ImGui::Begin("TabBarWindow");
+            ImGui::Begin("TabBar");
 
             UFOEngineStudio::TabBar(&program);
 
             ImGui::End();
 
-            UFOEngineStudio::Terminal(&program);
+            ImGui::Begin("Log");
+
+            ImGui::TextUnformatted(program.log_text.c_str());
+
+            ImGui::End();
+
+            //UFOEngineStudio::Terminal(&program);
 
             program.Update();
 

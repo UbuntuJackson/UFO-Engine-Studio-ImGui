@@ -3,7 +3,7 @@
 #include <vector>
 #include "../console/console.h"
 
-class InstanceProperty{
+/*class InstanceProperty{
 public:
     std::string identifier;
     std::string alias;
@@ -81,4 +81,4 @@ public:
         v.Print();
     }
 
-};
+};*/
