@@ -12,6 +12,7 @@
 #include "actor_node.h"
 #include "../json/json_variant.h"
 #include "../console/console.h"
+#include "asset_manager.h"
 
 namespace UFOEngineStudio{
 
@@ -36,11 +37,15 @@ struct DragDrop{
 class ProgramState{
 public:
 
+    AssetManager asset_manager;
+
     SDL_Window* window = nullptr;
 
     Project project = Project{false};
     bool show_new_project_dialogue = false;
     std::string pending_project_name = "";
+
+    bool asset_browser_open = false;
 
     std::vector<std::unique_ptr<UFOEngineStudio::Tab>> tabs;
     UFOEngineStudio::Tab* active_tab = nullptr;

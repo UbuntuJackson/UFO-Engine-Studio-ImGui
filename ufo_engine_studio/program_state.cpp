@@ -10,15 +10,20 @@
 #include "actor_class.h"
 #include "property.h"
 #include "../ufo_project_manager/ufo_project_manager_header_tool.h"
+#include "asset_manager.h"
 
 namespace UFOEngineStudio{
 
-ProgramState::ProgramState(SDL_Renderer* _renderer){
+ProgramState::ProgramState(SDL_Renderer* _renderer) : asset_manager(_renderer){
     SDL_Surface* example_surface = IMG_Load("../res/placeholder_icon.png");
     assert(example_surface != nullptr);
     example_texture = SDL_CreateTextureFromSurface(_renderer ,example_surface);
     assert(example_texture != nullptr);
     SDL_DestroySurface(example_surface);
+
+    asset_manager.AddTexture("?", "../res/placeholder_icon.png");
+    asset_manager.AddTexture("matcha", "/home/uj/Documents/C++/ufo_engine_example/res/matcha.png");
+    asset_manager.AddTexture("so retro", "/home/uj/Pictures/5e78c22ef31d3c56.png");
 
     project.actor_classes.push_back(ActorClass{"Actor", "<actor.h>"});
     project.actor_classes.push_back(ActorClass{"Animation", "<animation.h>"});

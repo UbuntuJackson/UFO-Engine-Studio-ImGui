@@ -8,6 +8,8 @@
 #include "program_state.h"
 #include "file_node.h"
 #include "level_editor_tab.h"
+#include "asset_browser_tab.h"
+#include "../ufo_project_manager/ufo_project_manager.h"
 
 namespace UFOEngineStudio{
 
@@ -102,7 +104,28 @@ inline void MainMenuBar(ProgramState* _program){
 
                 }*/
             }  // Disabled item
+            if(ImGui::MenuItem("Build")){
+                UFOProjectManager::WriteDefaultCMakeLists_txt(_program);
+                UFOProjectManager::Build(_program);
+                
+            }
             ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Assets"))
+        {
+            if (ImGui::MenuItem("Browse assets")) {
+                _program->tabs.push_back(std::make_unique<AssetBrowserTab>("Asset Browser"));
+
+            }
+            
+            ImGui::EndMenu();
+        }
+
+        if(_program->asset_browser_open){
+            ImGui::Begin("Assets");
+
+            ImGui::End();
         }
 
         if(_program->show_new_project_dialogue){

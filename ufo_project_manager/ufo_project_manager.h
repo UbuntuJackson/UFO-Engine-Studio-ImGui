@@ -2,6 +2,36 @@
 #include <string>
 #include <vector>
 #include "../console/console.h"
+#include <filesystem>
+#include "../ufo_engine_studio/program_state.h"
+#include "../file/file.h"
+
+namespace UFOProjectManager{
+    inline void WriteDefaultCMakeLists_txt(UFOEngineStudio::ProgramState* _program_state){
+        if(!File::Exists(_program_state->working_directory_path+"/CMakeLists.txt")){
+        
+            File f = File();
+            f.Insert("cmake_minimum_required(VERSION 3.10)\n"
+                    "project(OUT)\n"
+                    "add_subdirectory(UFO-Engine) #CMakeLists.txt for engine is in folder called \"engine\"\n"
+                    "set(\n"
+                    "    SRC\n"
+                    "    main.cpp"
+                    ")\n"
+                    "add_executable(${PROJECT_NAME} ${SRC})\n"
+                    "target_link_libraries(${PROJECT_NAME} UFO)\n");
+        
+            f.Write(_program_state->working_directory_path+"/CMakeLists.txt");
+        }
+    }
+
+    inline void Build(UFOEngineStudio::ProgramState* _program_state){
+        if(!File::Exists(_program_state->working_directory_path+"/build")) system(std::string("cd "+_program_state->working_directory_path + " && mkdir build && cd build && cmake .. && make -j6 && ./OUT").c_str());
+        else system(std::string("cd "+_program_state->working_directory_path + " && cd build && cmake .. && make -j6 && ./OUT").c_str());
+
+        Console::PrintLine(_program_state->working_directory_path+"/build");
+    }
+}
 
 /*class InstanceProperty{
 public:

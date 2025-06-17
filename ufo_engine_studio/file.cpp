@@ -14,7 +14,7 @@ namespace UFOEngineStudio{
     void TreeFile::Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program){
 
         if(editing_name){
-            ImGui::InputText(("##FileName"+std::to_string(id)).c_str(),&file_name);
+            ImGui::InputText(("##FileName"+path+"/"+file_name).c_str(),&file_name);
         }
         else{
             
@@ -92,7 +92,6 @@ namespace UFOEngineStudio{
 
             if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
 
-                Console::PrintLine("BeginDragDropSource");
                 path_for_drag_drop_payload_use_only = _program->working_directory_path + path+"/"+file_name;
 
                 ImGui::SetDragDropPayload("FROM_FILE", this, sizeof(*this));
