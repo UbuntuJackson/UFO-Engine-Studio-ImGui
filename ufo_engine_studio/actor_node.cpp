@@ -206,6 +206,9 @@ JsonDictionary ActorNode::WriteToJson(){
     this_actor.Set("children", JsonArray());
     this_actor.Set("constructor_properties", JsonArray()); //This is going in editor_object
     this_actor.Set("properties", JsonArray()); //This is going in editor_object
+    this_actor.Set("exported_properties", JsonArray()); //This is going in editor_object
+
+    this_actor.Set("editor_object_class_name", editor_object->class_name);
 
     for(const auto& child : actor_nodes){
         this_actor.Get("children").AsArray().Push(child->WriteToJson());
@@ -217,6 +220,10 @@ JsonDictionary ActorNode::WriteToJson(){
 
     for(const auto& property : editor_object->properties){ //This is going in editor_object
         this_actor.Get("properties").AsArray().Push(property->AsJson());
+    }
+
+    for(const auto& property : editor_object->exported_properties){ //This is going in editor_object
+        this_actor.Get("exported_properties").AsArray().Push(property->AsJson());
     }
 
     return this_actor;
@@ -259,6 +266,8 @@ void ActorNode::ReadFromJson(JsonDictionary* _json){
         editor_object = std::make_unique<ActorEditorObject>();
         editor_object->SetPropertiesFromJson(_json);
     }*/
+
+    editor_object->class_name = _json->Get("editor_object_class_name").AsString();
 
     for(const auto& child : _json->Get("children").AsArray().Iterable()){
         auto u_child = std::make_unique<ActorNode>();

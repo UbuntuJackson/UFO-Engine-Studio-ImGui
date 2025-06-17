@@ -26,31 +26,6 @@ ProgramState::ProgramState(SDL_Renderer* _renderer){
     project.actor_classes.push_back(ActorClass{"Camera", "<camera.h>"});
     project.actor_classes.push_back(ActorClass{"TileMap", "<tile_map.h>"});
 
-    //tabs.push_back(std::make_unique<UFOEngineStudio::ManualTab>(this,"LevelTab1"));
-
-    /*project.AddActorVariantFromActorClass(ActorClass{"Actor", "<actor.h>"}, "Engine");
-    project.AddActorVariantFromActorClass(ActorClass{"Animation", "<animation.h>"}, "Engine");
-    project.AddActorVariantFromActorClass(ActorClass{"SpriteReference", "<sprite_reference.h>"}, "Engine");
-
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Pingu"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Spawner"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"Spawner"}, "Actors");
-    project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
-    project.AddActorVariantFromActorClass(ActorClass{"AntiSpawner"}, "Misc");
-    project.AddActorVariantFromActorClass(ActorClass{"DraggableObject"}, "TestActors");*/
 }
 
 void ProgramState::WriteProjectFile(std::string _path){
@@ -102,6 +77,8 @@ void ProgramState::ImportHeaderFileToProject(std::string _path){
     //int result = system((std::string("cd .. && cd header_tool && python3 project.py ")+_path).c_str());
     //if(result) Console::PrintLine("ProgramState::ImportHeaderFileToProject() Result returned true");
     
+    std::string file_name = _path.substr(_path.find_last_of("/")+1);
+
     log_text += "Looking in header file: "+_path+"\n";
 
     auto messages = UFOProjectManagerHeaderTool::Run(_path);
@@ -152,8 +129,7 @@ void ProgramState::ImportHeaderFileToProject(std::string _path){
                 }
             }
             catch(const std::invalid_argument& err){
-                std::string error_message = std::string("[x] UFO-Engine Studio: Error, in ProgramState::ImportHeaderFileToProject()\n")+
-                    "     Some sort of convetion error happened with argument '"+default_value+"' with function call" +std::string(err.what())+
+                std::string error_message = std::string("[x] UFO-Engine Studio: Conversion error '")+default_value+"' is not of type '"+data_type+"'"+
                     "\n    in file: "+ _path;
                 
                 Console::PrintLine(error_message);
@@ -172,7 +148,7 @@ void ProgramState::ImportHeaderFileToProject(std::string _path){
         }
     }
 
-    project.actor_classes.push_back(ActorClass{class_name, _path, true});
+    project.actor_classes.push_back(ActorClass{class_name, "\""+file_name+"\"", true});
 
     for(auto&& p : exported_properties){
         

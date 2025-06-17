@@ -12,7 +12,7 @@ namespace UFOEngineStudio{
 
 void Directory::Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program){
 
-    bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+std::to_string(id)).c_str() : (file_name+"###Directory"+std::to_string(id)).c_str());
+    bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+path+"/"+file_name).c_str() : (file_name+"###Directory"+path+"/"+file_name).c_str());
 
     if(editing_name){
         ImGui::SameLine();

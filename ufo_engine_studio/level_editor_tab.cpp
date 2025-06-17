@@ -21,6 +21,7 @@ LevelEditorTab::LevelEditorTab(ProgramState* _program_state,std::string _file){
     name = _file.substr(_file.find_last_of("/")+1);
     actor = std::make_unique<ActorNode>();
     actor->name = "LevelRoot";
+    _program_state->should_refresh_properties_on_all_nodes = true;
 }
 
 void LevelEditorTab::Update(ProgramState* _program_state){

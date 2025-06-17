@@ -150,6 +150,41 @@ void ActorEditorObject::SetPropertiesFromJson(JsonDictionary* _json){
         }
         
     }
+
+    //This goes in editor_object
+    for(const auto& property : _json->Get("exported_properties").AsArray().Iterable()){
+        std::string local_type = property->AsDictionary().Get("type").AsString();
+        std::string local_name = property->AsDictionary().Get("name").AsString();
+
+        if(local_type == "int"){
+            
+            int local_value = property->AsDictionary().Get("value").AsInt();
+            AddExportedProperty<PropertyInt>(local_name, local_value);
+            
+        }
+        else if(local_type == "String"){
+            
+            std::string local_value = property->AsDictionary().Get("value").AsString();
+            AddExportedProperty<PropertyString>(local_name, local_value);
+
+        }
+        else if(local_type == "float"){
+
+            float local_value = property->AsDictionary().Get("value").AsFloat();
+            AddExportedProperty<PropertyFloat>(local_name, local_value);
+            
+        }
+        else if(local_type == "Vector2f"){
+            float local_value_x = property->AsDictionary().Get("x").AsFloat();
+            float local_value_y = property->AsDictionary().Get("y").AsFloat();
+            AddExportedProperty<PropertyVector2f>(local_name, local_value_x, local_value_y);
+            
+        }
+        else{
+            Console::PrintLine("ActorNode::ReadFromJson:","Unknown type", local_type);
+        }
+        
+    }
 }
 
 }
