@@ -353,7 +353,7 @@ void LevelEditorTab::OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* 
 void LevelEditorTab::OnSave(ProgramState* _program_state){
     if(path != "") actor->WriteToJson().Write(path);
     else{
-        const char file_location[] = "/home";
+        const char* file_location = _program_state->working_directory_path.c_str();
 
         SDL_ShowSaveFileDialog(&OnNewActorFile , this, _program_state->window, nullptr, 0, file_location);
     }

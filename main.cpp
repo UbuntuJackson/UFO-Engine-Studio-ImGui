@@ -94,7 +94,7 @@ int main()
     UFOEngineStudio::ProgramState program(renderer);
     program.window = window;
 
-    program.OpenFolder("/home/uj/Documents/C++/ufo_engine_example");
+    program.OpenFolder("/home/uj/Documents/C++/blitbloot");
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 

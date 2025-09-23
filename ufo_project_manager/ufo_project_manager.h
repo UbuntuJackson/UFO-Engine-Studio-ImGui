@@ -20,7 +20,7 @@ namespace UFOProjectManager{
                     "    main.cpp"
                     ")\n"
                     "add_executable(${PROJECT_NAME} ${SRC})\n"
-                    "target_link_libraries(${PROJECT_NAME} UFO)\n");
+                    "target_link_libraries(${PROJECT_NAME} PUBLIC UFO)\n");
         
             f.Write(_program_state->working_directory_path+"/CMakeLists.txt");
         }

@@ -14,7 +14,20 @@ namespace UFOEngineStudio{
     void TreeFile::Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program){
 
         if(editing_name){
-            ImGui::InputText(("##FileName"+path+"/"+file_name).c_str(),&file_name);
+            ImGui::InputText(("###EditText"+std::to_string(id)).c_str(),&file_name);
+
+            //This is just duplicate code from this file to make the actual file you just input
+            if(!ImGui::IsItemClicked() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsKeyPressed(ImGuiKey_Enter))){
+                editing_name = false;
+
+                if(is_new_file){
+                    File f = File::New();
+                    f.Insert("");
+                    f.Write(_program->working_directory_path + path+"/"+file_name);
+                
+                    is_new_file = false;
+                }
+            }
         }
         else{
             

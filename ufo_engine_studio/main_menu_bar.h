@@ -28,7 +28,7 @@ inline void OnOpenFolder(void *_userdata, const char * const *_filelist, int _fi
 
     ProgramState* program = (ProgramState*)_userdata;
 
-    program->opened_directory = FileNode::ParseFolder(*_filelist);
+    program->OpenFolder(*_filelist);
 
 }
 
@@ -52,7 +52,8 @@ inline void MainMenuBar(ProgramState* _program){
             //ShowExampleMenuFile();
 
             if(ImGui::MenuItem("Open Folder")){
-                const char file_location[] = "/home";
+                const char* file_location = _program->working_directory_path.c_str();
+                Console::PrintLine("Debug file_location:",file_location);
 
                 SDL_ShowOpenFolderDialog(&OnOpenFolder , _program, _program->window, file_location, false);
             }
