@@ -34,11 +34,11 @@ public:
 
     PropertyVector2f* local_position = nullptr;
 
-    void DrawInLevel(ActorNode* _parent, Vector2f _parent_global_position){
-        editor_object->Update((_parent ? _parent->editor_object.get() : nullptr), _parent_global_position);
+    void DrawInLevel(ProgramState* _program_state, ActorNode* _parent, Vector2f _parent_global_position){
+        editor_object->Update(_program_state,(_parent ? _parent->editor_object.get() : nullptr), _parent_global_position);
         
         for(const auto& actor_node : actor_nodes){
-            actor_node->DrawInLevel(this, _parent_global_position + editor_object->local_position_handle->AsVector2f());
+            actor_node->DrawInLevel(_program_state, this, _parent_global_position + editor_object->local_position_handle->AsVector2f());
         }
     }
 

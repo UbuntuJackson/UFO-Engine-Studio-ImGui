@@ -84,7 +84,7 @@ int main()
     //IM_ASSERT(font != nullptr);
 
     // Our state
-    bool show_demo_window = false;
+    bool show_demo_window = true;
     bool show_another_window = false;
     bool show_sample_window = false;
 

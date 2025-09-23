@@ -54,9 +54,9 @@ public:
 
     ActorEditorObject();
 
-    virtual void Update(ActorEditorObject* _parent_editor_object, Vector2f _parent_position);
+    virtual void Update(ProgramState* _program_state, ActorEditorObject* _parent_editor_object, Vector2f _parent_position);
 
-    void PropertyUpdate(ProgramState* _program);
+    virtual void PropertyUpdate(ProgramState* _program);
 
     virtual void NullHandles(){
         local_position_handle = nullptr;
@@ -68,6 +68,10 @@ public:
 
     virtual void OnSetupProperty(PropertyString* _p){
         
+    }
+
+    virtual void OnSetupProperty(PropertyAssetString* _p){
+
     }
 
     virtual void OnSetupProperty(PropertyFloat* _p){

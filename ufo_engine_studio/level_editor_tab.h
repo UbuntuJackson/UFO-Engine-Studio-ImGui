@@ -16,7 +16,7 @@ public:
 
     LevelEditorTab(ProgramState* _program_state, std::string _file);
 
-    void ConvertJsonToCPP(std::string& _header_file, std::vector<std::string>& _used_actor_classes, JsonDictionary* _json, ProgramState* _program_state);
+    void ConvertJsonToCPP(std::string& _handle_identifiers, std::string& _handle_struct, std::string& _header_file, std::vector<std::string>& _used_actor_classes, JsonDictionary* _json, ProgramState* _program_state);
 
     void Update(ProgramState* _program_state);
 

@@ -11,7 +11,7 @@ ActorEditorObject::ActorEditorObject(){
     local_position_handle = AddConstructorProperty<PropertyVector2f>("local position", 0.0f, 0.0f);
 }
 
-void ActorEditorObject::Update(ActorEditorObject* _parent_editor_object, Vector2f _parent_position){
+void ActorEditorObject::Update(ProgramState* _program_state, ActorEditorObject* _parent_editor_object, Vector2f _parent_position){
     Vector2f global_position = _parent_position + local_position_handle->AsVector2f();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     
@@ -95,6 +95,12 @@ void ActorEditorObject::SetPropertiesFromJson(JsonDictionary* _json){
             
             std::string local_value = property->AsDictionary().Get("value").AsString();
             OnSetupProperty(AddConstructorProperty<PropertyString>(local_name, local_value));
+
+        }
+        else if(local_type == "AssetString"){
+            
+            std::string local_value = property->AsDictionary().Get("value").AsString();
+            OnSetupProperty(AddConstructorProperty<PropertyAssetString>(local_name, local_value));
 
         }
         else if(local_type == "float"){

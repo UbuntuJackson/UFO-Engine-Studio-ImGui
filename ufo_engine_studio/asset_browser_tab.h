@@ -18,7 +18,7 @@ public:
 
         ImGui::Begin("Assets");
 
-        if(ImGui::IsItemClicked()) for(auto&& asset : _program->asset_manager.textures) asset->edit_mode = false;
+        if(ImGui::IsItemClicked()) for(auto&& [asset_path, asset] : _program->asset_manager.textures) asset->edit_mode = false;
 
         if(ImGui::BeginDragDropTarget() && ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             const ImGuiPayload* payload = ImGui::GetDragDropPayload();
@@ -38,10 +38,10 @@ public:
 
         int unique_id = 0;
 
-        std::string remove_alias = "";
+        std::string remove_with_path = "";
         bool should_remove_alias = false;
 
-        for(auto&& asset : _program->asset_manager.textures){
+        for(auto&& [asset_path, asset] : _program->asset_manager.textures){
 
             float max_width = 100.0f;
             float scale = 1.0f;
@@ -59,14 +59,14 @@ public:
             else ImGui::TextUnformatted(asset->alias.c_str());
 
             if(ImGui::IsItemClicked()){
-                for(auto&& asset : _program->asset_manager.textures) asset->edit_mode = false;
+                for(auto&& [asset_path, asset] : _program->asset_manager.textures) asset->edit_mode = false;
                 asset->edit_mode = !asset->edit_mode;
             }
 
             ImGui::SameLine();
 
             if(ImGui::Button(std::string("[x]###Close"+std::to_string(unique_id)).c_str())){
-                remove_alias = asset->alias;
+                remove_with_path = asset_path;
                 should_remove_alias = true;
             }
 
@@ -75,7 +75,7 @@ public:
             unique_id++;
         }
 
-        if(should_remove_alias) _program->asset_manager.DeleteTexture(remove_alias);
+        if(should_remove_alias) _program->asset_manager.DeleteTexture(remove_with_path);
 
         ImGui::End();
 

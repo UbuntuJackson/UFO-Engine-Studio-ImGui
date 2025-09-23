@@ -8,6 +8,7 @@
 namespace UFOEngineStudio{
 
 class ProgramState;
+class AnimationEditorObject;
 
 class Property{
 public:
@@ -20,6 +21,7 @@ public:
     int id = 0;
 
     Property(std::string _name);
+    virtual void InactiveUpdate(ProgramState* _program_state);
     virtual void Update(ProgramState* _program_state);
 
     virtual JsonDictionary AsJson();
@@ -75,6 +77,40 @@ public:
         return std::make_unique<PropertyString>(name, text);
     }
 
+};
+
+class PropertyAssetString : public Property{
+public:
+    std::string asset_path = "";
+
+    PropertyAssetString(std::string _name, std::string _asset_path);
+
+    void InactiveUpdate(ProgramState* _program_state);
+
+    void Update(ProgramState* _program_state);
+
+    JsonDictionary AsJson();
+
+    std::unique_ptr<Property> Copy(){
+        return std::make_unique<PropertyAssetString>(name, asset_path);
+    }
+
+};
+
+class PropertyAnimation : public Property{
+public:
+    bool is_opened = false;
+    AnimationEditorObject* animation_editor_object = nullptr;
+
+    PropertyAnimation(std::string _name, AnimationEditorObject* _animation_editor_object);
+
+    void Update(ProgramState* _program_state);
+
+    JsonDictionary AsJson();
+
+    std::unique_ptr<Property> Copy(){
+        return std::make_unique<PropertyAnimation>(name, animation_editor_object);
+    }
 };
 
 class PropertyFloat : public Property{

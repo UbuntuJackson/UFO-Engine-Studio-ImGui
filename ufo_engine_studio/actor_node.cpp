@@ -10,7 +10,9 @@
 #include "property.h"
 #include "editor_objects/editor_object.h"
 #include "editor_objects/sprite_reference_editor_object.h"
+#include "editor_objects/animation_editor_object.h"
 #include "dock_utils.h"
+#include "editor_objects/tile_map_editor_object.h"
 
 namespace UFOEngineStudio{
 
@@ -22,7 +24,15 @@ ActorNode::ActorNode(){
 }
 
 void ActorNode::UpdateExportedAttributes(ProgramState* _program){
-    if(_program->should_refresh_properties_on_all_nodes) editor_object->UpdateExportedAttributes(_program);
+
+    //for(const auto& property : editor_object->properties) property->InactiveUpdate(_program);
+    //for(const auto& property : editor_object->exported_properties) property->InactiveUpdate(_program);
+    //for(const auto& property : editor_object->constructor_properties) property->InactiveUpdate(_program);
+
+    if(_program->should_refresh_properties_on_all_nodes){
+        editor_object->UpdateExportedAttributes(_program);
+
+    }
 
     for(const auto& actor_node : actor_nodes){
         actor_node->UpdateExportedAttributes(_program);
@@ -248,6 +258,14 @@ std::unique_ptr<ActorEditorObject> ActorNode::CreateEditorObjectWithTypeFromStri
 
     if(_actor_type == "SpriteReference"){
         return std::make_unique<SpriteReferenceEditorObject>();
+    }
+
+    if(_actor_type == "Animation"){
+        return std::make_unique<AnimationEditorObject>();
+    }
+
+    if(_actor_type == "TileMap"){
+        return std::make_unique<TileMapEditorObject>();
     }
 
     //Make it an ActorEditorObject by default, ie Actor

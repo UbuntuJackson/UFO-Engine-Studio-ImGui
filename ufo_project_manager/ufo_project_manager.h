@@ -7,6 +7,7 @@
 #include "../file/file.h"
 
 namespace UFOProjectManager{
+
     inline void WriteDefaultCMakeLists_txt(UFOEngineStudio::ProgramState* _program_state){
         if(!File::Exists(_program_state->working_directory_path+"/CMakeLists.txt")){
         
@@ -26,6 +27,7 @@ namespace UFOProjectManager{
     }
 
     inline void Build(UFOEngineStudio::ProgramState* _program_state){
+        
         if(!File::Exists(_program_state->working_directory_path+"/build")) system(std::string("cd "+_program_state->working_directory_path + " && mkdir build && cd build && cmake .. && make -j6 && ./OUT").c_str());
         else system(std::string("cd "+_program_state->working_directory_path + " && cd build && cmake .. && make -j6 && ./OUT").c_str());
 

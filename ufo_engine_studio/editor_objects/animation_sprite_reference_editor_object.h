@@ -11,16 +11,17 @@ class PropertyInt;
 
 namespace UFOEngineStudio{
 
-class SpriteReferenceEditorObject : public ActorEditorObject{
+class AnimationSpriteReferenceEditorObject : public ActorEditorObject{
 public:
     PropertyAssetString* key = nullptr;
     PropertyVector2f* offset = nullptr;
     PropertyVector2f* frame_size = nullptr;
     PropertyVector2f* scale = nullptr;
     PropertyFloat* rotation = nullptr;
-    PropertyInt* frame_index = nullptr;
+    PropertyFloat* frame_index = nullptr;
+    PropertyFloat* pace = nullptr;
 
-    SpriteReferenceEditorObject();
+    AnimationSpriteReferenceEditorObject();
 
     void OnSetupProperty(PropertyFloat *_p);
 

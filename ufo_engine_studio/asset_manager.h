@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <unordered_map>
 #include <string>
 #include <memory>
 #include <SDL3/SDL.h>
@@ -17,7 +17,7 @@ public:
 
 class AssetManager{
 public:
-    std::vector<std::unique_ptr<TextureWrapper>> textures;
+    std::unordered_map<std::string,std::unique_ptr<TextureWrapper>> textures;
     SDL_Renderer* renderer = nullptr;
 
     AssetManager() = default;
@@ -33,23 +33,18 @@ public:
         assert(example_texture != nullptr);
         SDL_DestroySurface(example_surface);
 
-        textures.push_back(std::make_unique<TextureWrapper>(example_texture,_alias));
+        textures.emplace(_path,std::make_unique<TextureWrapper>(example_texture,_alias));
     }
 
-    void DeleteTexture(std::string _alias){
+    void DeleteTexture(std::string _path){
 
-        for(int i = textures.size() -1; i >= 0; i--){
-            if(textures[i]->alias == _alias){
-                SDL_DestroyTexture(textures[i]->texture);
-                textures.erase(textures.begin()+i);
-                
-            }
-        }
+        SDL_DestroyTexture(textures[_path]->texture);
+        textures.erase(_path);
 
     }
 
     ~AssetManager(){
-        for(auto && v : textures) SDL_DestroyTexture(v->texture);
+        for(auto && [k,v] : textures) SDL_DestroyTexture(v->texture);
         textures.clear();
     }
 

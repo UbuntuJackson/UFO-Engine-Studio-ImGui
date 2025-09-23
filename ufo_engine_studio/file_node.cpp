@@ -129,6 +129,9 @@ void FileNode::Traverse(){
 
 void FileNode::SearchForHeaderFiles(ProgramState* _program, std::string _path){
 
+    // Don't search through the entire engine.
+    if(file_name == "UFO-Engine") return;
+
     std::string full_path = _path+file_name;
 
     if(file_name != ""){   
