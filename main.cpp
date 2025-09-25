@@ -96,6 +96,23 @@ int main()
 
     program.OpenFolder("/home/uj/Documents/C++/blitbloot");
 
+    program.asset_manager.AddPlaceholderTexture("?", "", "/home/uj/Documents/C++/imgui_SDL/res/placeholder_icon.png");
+    program.asset_manager.AddPlaceholderTexture("matcha", "", "/home/uj/Documents/C++/ufo_engine_example/res/matcha.png");
+    program.asset_manager.AddPlaceholderTexture("so retro", "", "/home/uj/Pictures/5e78c22ef31d3c56.png");
+
+    if(!File::Exists(program.working_directory_path + "/loaded_assets.json")){
+        Console::PrintLine("No loaded_assets.json found");
+    }
+    else{
+        JsonDictionary d = JsonDictionary::Read(program.working_directory_path + "/loaded_assets.json");
+        for(const auto& asset : d.Get("assets").AsArray().Iterable()){
+            std::string asset_path = asset->AsDictionary().Get("path_for_editor").AsString();
+            Console::PrintLine(asset_path);
+
+            program.asset_manager.AddTexture(asset_path, program.working_directory_path, asset_path);
+        }
+    }
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop

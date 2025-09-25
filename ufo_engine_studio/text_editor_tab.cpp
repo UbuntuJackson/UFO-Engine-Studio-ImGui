@@ -22,7 +22,7 @@ bool TextEditorTab::DetermineIfEdited(){
 void TextEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state){
 
     ImGui::Begin("Text- and Code Editing");
-    ImGui::InputTextMultiline(("##TextEditor"+name).c_str(), &text, ImVec2(ImGui::GetWindowSize()), ImGuiInputTextFlags_CallbackCompletion, FilterTabs);
+    ImGui::InputTextMultiline((name+"###TextEditor"+path).c_str(), &text, ImVec2(ImGui::GetWindowSize()), ImGuiInputTextFlags_CallbackCompletion, FilterTabs);
     
     ImGui::End();
 }

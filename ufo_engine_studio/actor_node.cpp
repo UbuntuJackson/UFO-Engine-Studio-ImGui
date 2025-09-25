@@ -256,7 +256,7 @@ void ActorNode::SetAttributesFromJsonTypeDiverse(JsonDictionary* _json, ActorNod
 
 std::unique_ptr<ActorEditorObject> ActorNode::CreateEditorObjectWithTypeFromString(std::string _actor_type){
 
-    if(_actor_type == "SpriteReference"){
+    if(_actor_type == "Sprite"){
         return std::make_unique<SpriteReferenceEditorObject>();
     }
 

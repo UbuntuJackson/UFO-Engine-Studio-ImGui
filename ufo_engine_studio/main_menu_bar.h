@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <exception>
+#include <thread>
 #include "../imgui/misc/cpp/imgui_stdlib.h"
 #include "../imgui/imgui.h"
 #include "program_state.h"
@@ -107,7 +108,8 @@ inline void MainMenuBar(ProgramState* _program){
             }  // Disabled item
             if(ImGui::MenuItem("Build")){
                 UFOProjectManager::WriteDefaultCMakeLists_txt(_program);
-                UFOProjectManager::Build(_program);
+                std::thread game_thread(UFOProjectManager::Build, _program);
+                game_thread.join();
                 
             }
             ImGui::EndMenu();

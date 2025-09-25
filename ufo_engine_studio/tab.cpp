@@ -14,7 +14,7 @@ namespace UFOEngineStudio{
 
 void Tab::Update(ProgramState* _program_state){
 
-    if(ImGui::BeginTabItem(((DetermineIfEdited() ? name : name+"*")+"###"+name).c_str(), &opened, ImGuiTabItemFlags_None)){
+    if(ImGui::BeginTabItem(((DetermineIfEdited() ? name : name+"*")+"###"+path).c_str(), &opened, ImGuiTabItemFlags_None)){
         //ImGui::BeginChildFrame(1,ImVec2(800,600));
         //ImGui::Begin(("TabWindow##"+name).c_str());
         ImGuiID local_dockspace_id = ImGui::GetID(name.c_str());

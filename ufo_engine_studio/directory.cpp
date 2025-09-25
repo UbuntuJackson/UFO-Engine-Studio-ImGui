@@ -28,6 +28,8 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
                 std::filesystem::create_directory(full_path);
             }
             is_new_directory = false;
+
+            _program->should_refresh_working_directory = true;
         }
     }
 
@@ -45,6 +47,7 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Pr
     if(ImGui::BeginDragDropTarget()){
 
         if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
+            _program->should_refresh_working_directory = true;
             
             _program->drag_drop_stack.back().move_to_folder = this;
             _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path + "/" + file_name;

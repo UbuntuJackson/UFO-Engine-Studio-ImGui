@@ -21,13 +21,9 @@ ProgramState::ProgramState(SDL_Renderer* _renderer) : asset_manager(_renderer){
     assert(example_texture != nullptr);
     SDL_DestroySurface(example_surface);
 
-    asset_manager.AddTexture("?", "../res/placeholder_icon.png");
-    asset_manager.AddTexture("matcha", "/home/uj/Documents/C++/ufo_engine_example/res/matcha.png");
-    asset_manager.AddTexture("so retro", "/home/uj/Pictures/5e78c22ef31d3c56.png");
-
     project.actor_classes.push_back(ActorClass{"Actor", "<actor.h>"});
     project.actor_classes.push_back(ActorClass{"Animation", "<animation.h>"});
-    project.actor_classes.push_back(ActorClass{"SpriteReference", "<sprite_reference.h>"});
+    project.actor_classes.push_back(ActorClass{"Sprite", "<sprite.h>"});
     project.actor_classes.push_back(ActorClass{"Camera", "<camera.h>"});
     project.actor_classes.push_back(ActorClass{"TileMap", "<tile_map.h>"});
 

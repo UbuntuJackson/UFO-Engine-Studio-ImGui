@@ -27,6 +27,8 @@ namespace UFOEngineStudio{
                 
                     is_new_file = false;
                 }
+
+                _program->should_refresh_working_directory = true;
             }
         }
         else{
@@ -36,18 +38,17 @@ namespace UFOEngineStudio{
             if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()){
 
                 std::string tab_name = (path+"/"+file_name).substr((path+"/"+file_name).find_last_of("/")+1);
+                std::string full_path = _program->working_directory_path+path+"/"+file_name;
 
                 bool tab_already_open = false;
 
                 for(auto&& tab : _program->tabs){
-                    if(tab->name == tab_name){
+                    if(tab->path == full_path){
                         tab_already_open = true;
                     }
                 }
 
                 if(!tab_already_open){
-
-                    std::string full_path = _program->working_directory_path+path+"/"+file_name;
 
                     if(File::Exists(full_path)){
                         std::string extension = tab_name.substr(tab_name.find_last_of(".")+1);
@@ -92,6 +93,8 @@ namespace UFOEngineStudio{
 
                 if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
 
+                    _program->should_refresh_working_directory = true;
+
                     //Move to parent folder to place next to neighbouring folder
                     _program->drag_drop_stack.back().move_to_folder = _parent;
                     _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path;
@@ -105,7 +108,7 @@ namespace UFOEngineStudio{
 
             if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
 
-                path_for_drag_drop_payload_use_only = _program->working_directory_path + path+"/"+file_name;
+                path_for_drag_drop_payload_use_only = path+"/"+file_name;
 
                 ImGui::SetDragDropPayload("FROM_FILE", this, sizeof(*this));
     

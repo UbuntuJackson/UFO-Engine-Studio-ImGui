@@ -5,6 +5,7 @@
 #include "dock_utils.h"
 #include "im_vec.h"
 #include "file.h"
+#include "../json/json_variant.h"
 
 namespace UFOEngineStudio{
 
@@ -30,7 +31,10 @@ public:
                     Console::PrintLine("found dot");
                     if(file->file_name.substr(file->file_name.find_last_of(".")+1) == "png"){
                         TreeFile* tree_file = (TreeFile*)payload->Data;
-                        _program->asset_manager.AddTexture(tree_file->path_for_drag_drop_payload_use_only, tree_file->path_for_drag_drop_payload_use_only);
+                        _program->asset_manager.AddTexture(
+                            tree_file->path_for_drag_drop_payload_use_only.substr(0,tree_file->path_for_drag_drop_payload_use_only.size()),
+                            _program->working_directory_path,
+                            tree_file->path_for_drag_drop_payload_use_only.substr(0,tree_file->path_for_drag_drop_payload_use_only.size()));
                     }
                 }
             }
@@ -84,6 +88,27 @@ public:
     void
     OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state){
         ImGuiDockSpaceFill(_local_dockspace_id, ImGui::GetWindowSize(), "Assets");
+    }
+
+    void OnSave(ProgramState* _program){
+        Console::PrintLine("AssetBrowserTab OnSave");
+
+        JsonDictionary d = JsonDictionary();
+        JsonArray arr = JsonArray();
+        
+        for(const auto& [path, tex] : _program->asset_manager.textures){
+            JsonDictionary asset = JsonDictionary();
+            asset.Set("alias", tex->alias);
+            asset.Set("path", path);
+            asset.Set("path_for_editor", tex->easily_loadable_path_from_the_editors_perspective);
+            
+            arr.Push(asset);
+        }
+        d.Set("assets", arr);
+
+        Console::PrintLine(_program->working_directory_path);
+
+        d.Write(_program->working_directory_path+"/loaded_assets.json");
     }
 
 };

@@ -11,8 +11,9 @@ class TextureWrapper{
 public:
     SDL_Texture* texture;
     std::string alias;
+    std::string easily_loadable_path_from_the_editors_perspective = "";
     bool edit_mode = false;
-    TextureWrapper(SDL_Texture* _texture, std::string _name) : texture{_texture}, alias{_name}{}
+    TextureWrapper(SDL_Texture* _texture, std::string _name, std::string _easily_loadable_path_from_the_editors_perspective) : texture{_texture}, alias{_name}, easily_loadable_path_from_the_editors_perspective{_easily_loadable_path_from_the_editors_perspective}{}
 };
 
 class AssetManager{
@@ -26,14 +27,28 @@ public:
         renderer = _renderer;
     }
 
-    void AddTexture(std::string _alias, std::string _path){
-        SDL_Surface* example_surface = IMG_Load(_path.c_str());
+    void AddTexture(std::string _alias, std::string _working_directory, std::string _local_path){
+        if(textures.count(_local_path)) return;
+
+        Console::PrintLine(_working_directory, _local_path);
+        SDL_Surface* example_surface = IMG_Load((_working_directory + _local_path).c_str());
         assert(example_surface != nullptr);
         SDL_Texture* example_texture = SDL_CreateTextureFromSurface(renderer ,example_surface);
         assert(example_texture != nullptr);
         SDL_DestroySurface(example_surface);
 
-        textures.emplace(_path,std::make_unique<TextureWrapper>(example_texture,_alias));
+        textures.emplace(".."+_local_path,std::make_unique<TextureWrapper>(example_texture,".."+_alias, _local_path));
+    }
+
+    void AddPlaceholderTexture(std::string _alias, std::string _working_directory, std::string _path){
+        Console::PrintLine(_working_directory, _path);
+        SDL_Surface* example_surface = IMG_Load((_working_directory + _path).c_str());
+        assert(example_surface != nullptr);
+        SDL_Texture* example_texture = SDL_CreateTextureFromSurface(renderer,example_surface);
+        assert(example_texture != nullptr);
+        SDL_DestroySurface(example_surface);
+
+        textures.emplace(_path,std::make_unique<TextureWrapper>(example_texture,_alias, _path));
     }
 
     void DeleteTexture(std::string _path){

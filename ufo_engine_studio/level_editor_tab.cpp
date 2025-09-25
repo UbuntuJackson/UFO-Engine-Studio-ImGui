@@ -30,6 +30,65 @@ void LevelEditorTab::Update(ProgramState* _program_state){
     actor->UpdateExportedAttributes(_program_state);
 }
 
+void LevelEditorTab::ConvertActorTreeToCPP(ProgramState* _program_state){
+    JsonDictionary json = actor->WriteToJson();
+
+    std::string top_node_name = json.Get("name").AsString();
+
+    std::string header_file = "";
+    std::string includes = "";
+    std::string handle_struct = "";
+    std::string handle_identifiers = "";
+    includes+= "#pragma once\n";
+    includes+= "#include <ufo_maths.h>\n";
+
+    header_file+= "\n";
+
+    //Make sure there is a struct to import
+    std::string handle_struct_name = "ComponentHandles";
+    handle_struct += "struct " + handle_struct_name + "{\n";
+
+    header_file+= "\n";
+    header_file+= handle_struct_name + " BuildComponentTree("+json.Get("type").AsString()+"* _this){\n";
+    header_file+= "\n";
+    json.Set("name", "_this");
+
+    std::vector<std::string> used_actor_classes_to_include;
+
+    ConvertJsonToCPP(handle_identifiers, handle_struct, header_file, used_actor_classes_to_include, &json, _program_state);
+
+    header_file += "    return "+handle_struct_name+"{"+handle_identifiers.substr(0,handle_identifiers.size()-1)+"};\n";
+
+    handle_struct += "};\n";
+
+    header_file+= "\n";
+    header_file+= "}\n";
+    for(const auto& used_actor_class : used_actor_classes_to_include){
+        for(const auto& actor_class : _program_state->project.actor_classes){
+            if(actor_class.header_file != "" && actor_class.name == used_actor_class) includes+= "#include "+actor_class.header_file+"\n";
+        }
+    }
+
+    header_file+= "\n";
+    header_file+= "}\n"; //Closing off namespace Generated{
+
+    std::string namespace_start = "namespace Generated"+top_node_name+"{\n";
+
+    header_file = includes + namespace_start + handle_struct + header_file;
+
+    File f;
+    f.Insert(header_file);
+
+    std::string inside_of_directory = path.substr(0,path.find_last_of("/"));
+
+    Console::PrintLine("inside directory",inside_of_directory);
+
+    f.Write(inside_of_directory + "/" + actor->name + "_generated.h");
+
+    //Need to reload the working directory.
+    _program_state->should_refresh_working_directory = true;
+}
+
 void LevelEditorTab::ConvertJsonToCPP(std::string& _handle_identifiers, std::string& _handle_struct, std::string& _header_file , std::vector<std::string>& _used_actor_classes, JsonDictionary* _parent_json, ProgramState* _program_state){
 
     std::string parent_name = _parent_json->Get("name").AsString();
@@ -197,60 +256,6 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
 
     ImGui::Begin("LevelContentBrowser");
 
-    if(ImGui::Button("Convert to C++")){
-        JsonDictionary json = actor->WriteToJson();
-
-        std::string top_node_name = json.Get("name").AsString();
-
-        std::string header_file = "";
-        std::string includes = "";
-        std::string handle_struct = "";
-        std::string handle_identifiers = "";
-        includes+= "#pragma once\n";
-        includes+= "#include <ufo_maths.h>\n";
-
-        header_file+= "\n";
-
-        //Make sure there is a struct to import
-        std::string handle_struct_name = "ComponentHandles";
-        handle_struct += "struct " + handle_struct_name + "{\n";
-
-        header_file+= "\n";
-        header_file+= handle_struct_name + " BuildComponentTree("+json.Get("type").AsString()+"* _this){\n";
-        header_file+= "\n";
-        json.Set("name", "_this");
-
-        std::vector<std::string> used_actor_classes_to_include;
-
-        ConvertJsonToCPP(handle_identifiers, handle_struct, header_file, used_actor_classes_to_include, &json, _program_state);
-
-        header_file += "    return "+handle_struct_name+"{"+handle_identifiers.substr(0,handle_identifiers.size()-1)+"};\n";
-
-        handle_struct += "};\n";
-
-        header_file+= "\n";
-        header_file+= "}\n";
-        for(const auto& used_actor_class : used_actor_classes_to_include){
-            for(const auto& actor_class : _program_state->project.actor_classes){
-                if(actor_class.header_file != "" && actor_class.name == used_actor_class) includes+= "#include "+actor_class.header_file+"\n";
-            }
-        }
-
-        header_file+= "\n";
-        header_file+= "}\n"; //Closing off namespace Generated{
-
-        std::string namespace_start = "namespace Generated"+top_node_name+"{\n";
-
-        header_file = includes + namespace_start + handle_struct + header_file;
-
-        File f;
-        f.Insert(header_file);
-        f.Write(_program_state->working_directory_path + "/" + actor->name + "_generated.h");
-
-        //Need to reload the working directory.
-        _program_state->should_refresh_working_directory = true;
-    }
-
     ImGuiID level_content_browser_dock = ImGui::GetID("LevelContentBrowserDock");
     ImGuiDockSpaceSplit(level_content_browser_dock, ImGui::GetWindowSize(), "Instances", "Classes", SplitDirections::VERTICAL);
     ImGui::DockSpace(level_content_browser_dock, ImVec2(0.0f, 0.0f));
@@ -300,7 +305,7 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
 
     //Need to delay the importing of header file to avoid adding an actor_class while iterator though actor_classes
     if(header_file_with_class_to_add != nullptr){
-        _program_state->ImportHeaderFileToProject(header_file_with_class_to_add->path_for_drag_drop_payload_use_only);
+        _program_state->ImportHeaderFileToProject(_program_state->working_directory_path + header_file_with_class_to_add->path_for_drag_drop_payload_use_only);
     }
 
     ImGui::End();
@@ -351,6 +356,8 @@ void LevelEditorTab::OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* 
 }
 
 void LevelEditorTab::OnSave(ProgramState* _program_state){
+    ConvertActorTreeToCPP(_program_state);
+
     if(path != "") actor->WriteToJson().Write(path);
     else{
         const char* file_location = _program_state->working_directory_path.c_str();

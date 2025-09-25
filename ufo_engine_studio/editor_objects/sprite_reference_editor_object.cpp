@@ -84,7 +84,7 @@ void SpriteReferenceEditorObject::Update(ProgramState* _program_state, ActorEdit
     //Get the draw list to add to
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    float angle = rotation->value;
+    float angle =  rotation->value * 3.141592653f / 180.0f;
     Vector2f v_offset = offset->AsVector2f();
     Vector2f v_scale = scale->AsVector2f();
     
