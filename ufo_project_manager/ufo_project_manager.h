@@ -28,8 +28,10 @@ namespace UFOProjectManager{
 
     inline void Build(UFOEngineStudio::ProgramState* _program_state){
         
-        if(!File::Exists(_program_state->working_directory_path+"/build")) system(std::string("cd "+_program_state->working_directory_path + " && mkdir build && cd build && cmake .. && make -j6 && ./OUT").c_str());
-        else system(std::string("cd "+_program_state->working_directory_path + " && cd build && cmake .. && make -j6 && ./OUT").c_str());
+        UFOProjectManager::WriteDefaultCMakeLists_txt(_program_state);
+
+        if(!File::Exists(_program_state->working_directory_path+"/build")) system(std::string("cd "+_program_state->working_directory_path + " && mkdir build && cd build && cmake .. && make -j6 && (./OUT 2>&1 | tee engine_log.txt)").c_str());
+        else system(std::string("cd "+_program_state->working_directory_path + " && cd build && cmake .. && make -j6 && (./OUT 2>&1 | tee engine_log.txt)").c_str());
 
         Console::PrintLine(_program_state->working_directory_path+"/build");
     }

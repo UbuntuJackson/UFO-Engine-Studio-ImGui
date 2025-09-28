@@ -13,6 +13,8 @@
 #include "../json/json_variant.h"
 #include "../console/console.h"
 #include "asset_manager.h"
+#include <thread>
+#include "game_engine_thread.h"
 
 namespace UFOEngineStudio{
 
@@ -36,6 +38,9 @@ struct DragDrop{
 
 class ProgramState{
 public:
+    GameEngineThread game_engine_thread;
+
+    std::thread* t = nullptr;
 
     AssetManager asset_manager;
 

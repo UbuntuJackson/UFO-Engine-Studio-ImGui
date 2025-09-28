@@ -11,6 +11,7 @@
 #include "property.h"
 #include "../ufo_project_manager/ufo_project_manager_header_tool.h"
 #include "asset_manager.h"
+#include "../file/file.h"
 
 namespace UFOEngineStudio{
 
@@ -164,6 +165,10 @@ void ProgramState::ImportHeaderFileToProject(std::string _path){
 //This runs after the directory tree is updated
 void ProgramState::Update(){
 
+    if(File::Exists(working_directory_path+"/build/engine_log.txt")){
+        log_text += File().Read(working_directory_path+"/build/engine_log.txt");
+        File().Write(working_directory_path+"/build/engine_log.txt");
+    }
     //This list will be the new drag_drop_stack.
     //All items that begin a dragdrop but aren't moved to a new folder end up here.
     std::vector<DragDrop> preserved;

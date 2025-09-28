@@ -84,7 +84,7 @@ int main()
     //IM_ASSERT(font != nullptr);
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     bool show_sample_window = false;
 
@@ -114,6 +114,11 @@ int main()
     }
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    //std::thread t(UFOEngineStudio::GameEngineThreadRun, &program);
+
+    //program.t = &t;
+    //t.detach();
 
     // Main loop
     bool done = false;
