@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_internal.h"
-#include "../imgui/misc/cpp/imgui_stdlib.h"
+#include "../UFO-Engine-GL/imgui/imgui.h"
+#include "../UFO-Engine-GL/imgui/imgui_internal.h"
+#include "../UFO-Engine-GL/imgui/misc/cpp/imgui_stdlib.h"
 
 namespace UFOEngineStudio{
 

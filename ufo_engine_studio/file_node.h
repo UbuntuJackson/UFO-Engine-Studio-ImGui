@@ -9,7 +9,7 @@
 
 namespace UFOEngineStudio{
 
-class ProgramState;
+class Editor;
 class Directory;
 class FileNode{
 public:
@@ -36,7 +36,7 @@ public:
     //This parses a folder
     static std::unique_ptr<FileNode> ParseFolder(std::string _path);
 
-    virtual void Update(int _file_index, Directory* _parent, std::string path , ProgramState* _program);
+    virtual void Update(int _file_index, Directory* _parent, std::string path , Editor* _editor);
 
     void AddFileNodesRecursive();
 
@@ -46,7 +46,7 @@ public:
 
     void Traverse();
 
-    void SearchForHeaderFiles(ProgramState* _program, std::string _path);
+    void SearchForHeaderFiles(Editor* _editor, std::string _path);
 
     FileNode(const FileNode&) = delete;
     //FileNode(FileNode&) = delete;

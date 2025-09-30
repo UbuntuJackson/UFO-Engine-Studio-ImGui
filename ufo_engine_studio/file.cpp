@@ -1,17 +1,15 @@
-#include "../imgui/imgui.h"
-#include "../imgui/misc/cpp/imgui_stdlib.h"
+#include "../UFO-Engine-GL/imgui/imgui.h"
+#include "../UFO-Engine-GL/imgui/misc/cpp/imgui_stdlib.h"
 #include "file_node.h"
 #include "file.h"
 #include "directory.h"
-#include "program_state.h"
-#include "text_editor_tab.h"
-#include "../file/file.h"
-#include "level_editor_tab.h"
+#include "../UFO-Engine-GL/file/file.h"
+#include "editor.h"
 #include <filesystem>
 
 namespace UFOEngineStudio{
 
-    void TreeFile::Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program){
+    void TreeFile::Update(int _file_index, Directory* _parent,std::string path , Editor* _editor){
 
         if(editing_name){
             ImGui::InputText(("###EditText"+std::to_string(id)).c_str(),&file_name);
@@ -23,26 +21,28 @@ namespace UFOEngineStudio{
                 if(is_new_file){
                     File f = File::New();
                     f.Insert("");
-                    f.Write(_program->working_directory_path + path+"/"+file_name);
+                    f.Write(_editor->opened_directory_path + path+"/"+file_name);
                 
                     is_new_file = false;
                 }
 
-                _program->should_refresh_working_directory = true;
+                _editor->should_refresh_working_directory = true;
             }
         }
         else{
             
             ImGui::Text(file_name.c_str());
 
-            if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()){
+            //THE REST COMMENTED OUT FOR EDITOR REWORK
+
+            /*if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()){
 
                 std::string tab_name = (path+"/"+file_name).substr((path+"/"+file_name).find_last_of("/")+1);
-                std::string full_path = _program->working_directory_path+path+"/"+file_name;
+                std::string full_path = _editor->opened_folder+path+"/"+file_name;
 
                 bool tab_already_open = false;
 
-                for(auto&& tab : _program->tabs){
+                for(auto&& tab : _editor->tabs){
                     if(tab->path == full_path){
                         tab_already_open = true;
                     }
@@ -60,7 +60,7 @@ namespace UFOEngineStudio{
                             auto u_tf = std::make_unique<TextEditorTab>(path+"/"+file_name, f.GetAsString());
                             u_tf->path = full_path;
                             
-                            _program->tabs.push_back(std::move(u_tf));
+                            _editor->tabs.push_back(std::move(u_tf));
                         }
                         else if(extension == "ason"){
                             JsonDictionary d = JsonVariant::Read(full_path);
@@ -113,12 +113,8 @@ namespace UFOEngineStudio{
                 ImGui::SetDragDropPayload("FROM_FILE", this, sizeof(*this));
     
                 ImGui::EndDragDropSource();
-            }
+            }*/
         }
-
-        /*if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !editing_name){
-            editing_name = !editing_name;
-        }*/
 
         if(!ImGui::IsItemClicked() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsKeyPressed(ImGuiKey_Enter))){
             editing_name = false;
@@ -126,7 +122,7 @@ namespace UFOEngineStudio{
             if(is_new_file){
                 File f = File::New();
                 f.Insert("");
-                f.Write(_program->working_directory_path + path+"/"+file_name);
+                f.Write(_editor->opened_directory_path + path+"/"+file_name);
             
                 is_new_file = false;
             }
@@ -137,10 +133,9 @@ namespace UFOEngineStudio{
                 TurnOnEditMode();
             }
             if(ImGui::MenuItem("Delete")){
-                std::string full_path = _program->working_directory_path +"/"+ path+"/"+file_name;
+                std::string full_path = _editor->opened_directory_path +"/"+ path+"/"+file_name;
                 int res = std::remove(full_path.c_str());
                 if(res) Console::PrintLine("TreeFile::Update(): Failture upon trying to remove", full_path.c_str());
-                to_be_deleted = true;
                 
             }
             if(ImGui::MenuItem("New File")){
@@ -150,7 +145,7 @@ namespace UFOEngineStudio{
             }
             if(ImGui::MenuItem("New Folder")){
                 
-                std::string full_path = _program->working_directory_path + path+"/NewFolder";
+                std::string full_path = _editor->opened_directory_path + path+"/NewFolder";
                 std::filesystem::create_directory(full_path);
                 
                 _parent->file_nodes_to_be_added_at_end_of_frame.push_back(std::make_unique<Directory>(true));
@@ -160,7 +155,7 @@ namespace UFOEngineStudio{
             ImGui::EndPopup();
         }
 
-        FileNode::Update(_file_index, _parent,path, _program);
+        FileNode::Update(_file_index, _parent,path, _editor);
 
     }
 

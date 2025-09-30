@@ -4,7 +4,7 @@
 
 namespace UFOEngineStudio{
 
-class ProgramState;
+class Editor;
 
 class TreeFile : public FileNode{
 public:
@@ -15,7 +15,7 @@ public:
         
     }
 
-    void Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program);
+    void Update(int _file_index, Directory* _parent,std::string path , Editor* _editor);
 
     TreeFile(const TreeFile&) = delete;
 

@@ -166,8 +166,15 @@ void ProgramState::ImportHeaderFileToProject(std::string _path){
 void ProgramState::Update(){
 
     if(File::Exists(working_directory_path+"/build/engine_log.txt")){
-        log_text += File().Read(working_directory_path+"/build/engine_log.txt");
-        File().Write(working_directory_path+"/build/engine_log.txt");
+        std::string log_contents = File().Read(working_directory_path+"/build/engine_log.txt");
+
+        //Console::PrintLine();
+
+        log_text += log_contents;
+        
+        //File f;
+
+        //f.Write(working_directory_path+"/build/engine_log.txt");
     }
     //This list will be the new drag_drop_stack.
     //All items that begin a dragdrop but aren't moved to a new folder end up here.

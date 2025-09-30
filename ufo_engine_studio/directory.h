@@ -4,7 +4,7 @@
 
 namespace UFOEngineStudio{
 
-class ProgramState;
+class Editor;
 
 class Directory : public FileNode{
 public:
@@ -15,7 +15,7 @@ public:
     //_parent : The local directory the file or directory resides in
     //_path : the full path relative to the working directory
     //_program : the program state with it's various variables.
-    void Update(int _file_index, Directory*,std::string path , ProgramState*);
+    void Update(int _file_index, Directory*,std::string path , Editor* _editor);
     Directory() = default;
 
     Directory(const Directory&) = delete;

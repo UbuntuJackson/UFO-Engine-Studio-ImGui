@@ -6,9 +6,9 @@
 #include "directory.h"
 #include "file.h"
 #include "file_node.h"
-#include "program_state.h"
-#include "../imgui/imgui.h"
-#include "../imgui/misc/cpp/imgui_stdlib.h"
+#include "../UFO-Engine-GL/imgui/imgui.h"
+#include "../UFO-Engine-GL/imgui/misc/cpp/imgui_stdlib.h"
+#include "editor.h"
 
 namespace UFOEngineStudio{
 
@@ -47,7 +47,7 @@ std::unique_ptr<FileNode> FileNode::ParseFolder(std::string _path){
     return std::move(directory);
 }
 
-void FileNode::Update(int _file_index, Directory* _parent,std::string path , ProgramState* _program){
+void FileNode::Update(int _file_index, Directory* _parent,std::string path , Editor* _editor){
     
 }
 
@@ -79,38 +79,7 @@ void FileNode::Sort(){
     //return;
     
     auto comp = [](const std::unique_ptr<FileNode>& _a, const std::unique_ptr<FileNode>& _b){
-
         return _a->file_name < _b->file_name;
-
-        /*bool char_same = false;
-
-        if(int(_a->file_name.size()) > int(_b->file_name.size())){
-
-            for(int i = 0; i < int(_b->file_name.size()); i++){
-                if(int(_a->file_name[i]) == int(_b->file_name[i])){
-                    char_same = true;
-                }
-                else{
-                    return int(_a->file_name[i]) < int(_b->file_name[i]);
-                }
-            }
-           
-        }
-        else{
-            for(int i = 0; i < int(_a->file_name.size()); i++){
-                if(int(_a->file_name[i]) == int(_b->file_name[i])){
-                    char_same = true;
-                }
-                else{
-                    return int(_a->file_name[i]) < int(_b->file_name[i]);
-                }
-            }
-            
-        }
-
-        if(char_same) return _a->file_name.size() > _b->file_name.size();
-
-        return false;*/
     };
 
     std::sort(file_nodes.begin(), file_nodes.end(),comp);
@@ -127,7 +96,7 @@ void FileNode::Traverse(){
     }
 }
 
-void FileNode::SearchForHeaderFiles(ProgramState* _program, std::string _path){
+void FileNode::SearchForHeaderFiles(Editor* _editor, std::string _path){
 
     // Don't search through the entire engine.
     if(file_name == "UFO-Engine") return;
@@ -143,13 +112,13 @@ void FileNode::SearchForHeaderFiles(ProgramState* _program, std::string _path){
         if(file_name.substr(file_name.find_last_of(".")) == ".h" ||
                             file_name.substr(file_name.find_last_of(".")) == ".hpp")
         {
-            Console::PrintLine("Found headerfile:", _program->working_directory_path+full_path);
-            _program->ImportHeaderFileToProject(_program->working_directory_path+full_path);
+            Console::PrintLine("Found headerfile:", _editor->opened_directory_path+full_path);
+            _editor->ImportHeaderFileToProject(_editor->opened_directory_path+full_path);
         }
     }
 
     for(const auto& file_node : file_nodes){
-        file_node->SearchForHeaderFiles(_program, full_path);
+        file_node->SearchForHeaderFiles(_editor, full_path);
     }
     
 

@@ -11,7 +11,6 @@
 #include "level_editor_tab.h"
 #include "asset_browser_tab.h"
 #include "../ufo_project_manager/ufo_project_manager.h"
-#include "game_engine_thread.h"
 
 namespace UFOEngineStudio{
 
