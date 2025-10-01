@@ -12,7 +12,7 @@ namespace UFOEngineStudio{
 
 void Directory::Update(int _file_index, Directory* _parent,std::string path , Editor* _editor){
 
-    bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+path+"/"+file_name).c_str() : (file_name+"###Directory"+path+"/"+file_name).c_str());
+    bool folder_opened = ImGui::TreeNodeEx(editing_name ? ("###Directory"+std::to_string(id)).c_str() : (file_name+"###Directory"+path+"/"+file_name).c_str());
 
     if(editing_name){
         ImGui::SameLine();
@@ -35,30 +35,25 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Ed
 
     //DRAG DROP FEATURE TO BE REWORKED
 
-    /*if(ImGui::IsItemClicked()){
-        _program->drag_drop_stack.push_back(DragDrop{this, _parent, _program->working_directory_path + path});
-    }
+    FileNode::Update(_file_index, _parent,path, _editor);
 
-    if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
-        ImGui::SetDragDropPayload("CONTENT_BROWSER_DATA", this, sizeof(this));
-
-        ImGui::EndDragDropSource();
-    }
-
-    //This is in case file is dropped on folder
     if(ImGui::BeginDragDropTarget()){
+        //if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
+            const ImGuiPayload* payload_data = ImGui::AcceptDragDropPayload("FileDragDrop");
+            if(payload_data){
+                FileNode* file_node = (FileNode*)(payload_data->Data);
 
-        if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
-            _program->should_refresh_working_directory = true;
-            
-            _program->drag_drop_stack.back().move_to_folder = this;
-            _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path + "/" + file_name;
-            //_program->drag_drop_stack.push_back();
-        }
-        //ImGui::AcceptDragDropPayload("CONTENT_BROWSER_DATA");
+                const std::string this_path = _editor->opened_directory_path + path + "/" + file_name;
+
+                Console::PrintLine(file_node->path_for_drag_drop_payload_use_only);
+                
+                std::filesystem::rename(file_node->path_for_drag_drop_payload_use_only, this_path+"/"+file_node->file_name);
+                _editor->should_refresh_working_directory = true;
+            }
+        //}
 
         ImGui::EndDragDropTarget();
-    }*/
+    }
 
     if(ImGui::BeginPopupContextItem(("Options"+std::to_string(id)).c_str())){
         if(ImGui::MenuItem("Rename")){
@@ -68,6 +63,7 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Ed
             std::string full_path = _editor->opened_directory_path + path+"/"+file_name;
             int res = std::remove(full_path.c_str());
             if(res) Console::PrintLine("Directory::Update(): failed to remove directory from at path", full_path.c_str());
+            _editor->should_refresh_working_directory = true;
             
         }
         if(ImGui::MenuItem("New File")){
@@ -93,8 +89,6 @@ void Directory::Update(int _file_index, Directory* _parent,std::string path , Ed
         ImGui::TreePop();
         
     }
-
-    FileNode::Update(_file_index, _parent,path, _editor);
 
 }
 

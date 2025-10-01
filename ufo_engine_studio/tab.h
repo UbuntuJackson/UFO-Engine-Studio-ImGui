@@ -2,14 +2,11 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "../console/console.h"
-#include <SDL3/SDL.h>
-#include "../json/json_variant.h"
-#include "../imgui/imgui.h"
+#include "../UFO-Engine-GL/imgui/imgui.h"
 
 namespace UFOEngineStudio{
 
-class ProgramState;
+class Editor;
 
 class Tab{
 public:
@@ -18,12 +15,12 @@ public:
     bool opened = true;
     bool is_edited = false;
 
-    virtual void Update(ProgramState* _program_state);
+    virtual void Update(Editor* _program_state);
     virtual bool DetermineIfEdited();
-    virtual void OnActive(ImGuiID _local_dockspace_id, ProgramState* _program_state);
-    virtual void OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state);
+    virtual void OnActive(ImGuiID _local_dockspace_id, Editor* _program_state);
+    virtual void OnMakeDockSpace(ImGuiID _local_dockspace_id, Editor* _program_state);
 
-    virtual void OnSave(ProgramState* _program_state);
+    virtual void OnSave(Editor* _program_state);
 
 };
 

@@ -35,85 +35,25 @@ namespace UFOEngineStudio{
 
             //THE REST COMMENTED OUT FOR EDITOR REWORK
 
-            /*if(ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered()){
-
-                std::string tab_name = (path+"/"+file_name).substr((path+"/"+file_name).find_last_of("/")+1);
-                std::string full_path = _editor->opened_folder+path+"/"+file_name;
-
-                bool tab_already_open = false;
-
-                for(auto&& tab : _editor->tabs){
-                    if(tab->path == full_path){
-                        tab_already_open = true;
-                    }
-                }
-
-                if(!tab_already_open){
-
-                    if(File::Exists(full_path)){
-                        std::string extension = tab_name.substr(tab_name.find_last_of(".")+1);
-
-                        if(extension == "cpp" || extension == "h" || extension == "hpp" || extension == "h"){
-                            File f;
-                            f.Read(full_path);
-
-                            auto u_tf = std::make_unique<TextEditorTab>(path+"/"+file_name, f.GetAsString());
-                            u_tf->path = full_path;
-                            
-                            _editor->tabs.push_back(std::move(u_tf));
-                        }
-                        else if(extension == "ason"){
-                            JsonDictionary d = JsonVariant::Read(full_path);
-
-                            auto u_level_editor_tab = std::make_unique<LevelEditorTab>(_program, "");
-                            u_level_editor_tab->actor->ReadFromJson(&d);
-                            u_level_editor_tab->name = file_name;
-                            u_level_editor_tab->path = full_path;
-                            _program->tabs.push_back(std::move(u_level_editor_tab));
-                            
-                        }
-                        else{
-                            Console::PrintLine("File extension not supported:",full_path);
-                        }
-                    }
-                    else{
-                        Console::PrintLine("File does not exist at:",full_path);
-                    }
-                
-                }
-            }
-
-            if(ImGui::IsItemClicked()){
-                
-                _program->drag_drop_stack.push_back(DragDrop{this, _parent, _program->working_directory_path + path});
-            }
-    
-            //If thing is dropped on a file
             if(ImGui::BeginDragDropTarget()){
+                //if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
+                    const ImGuiPayload* payload_data = ImGui::AcceptDragDropPayload("FileDragDrop");
+                    if(payload_data){
+                        FileNode* file_node = (FileNode*)(payload_data->Data);
 
-                if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
+                        const std::string this_path = _editor->opened_directory_path + path;
 
-                    _program->should_refresh_working_directory = true;
+                        Console::PrintLine(file_node->path_for_drag_drop_payload_use_only);
+                        if(this_path != file_node->path_for_drag_drop_payload_use_only){
+                            std::filesystem::rename(file_node->path_for_drag_drop_payload_use_only, this_path+"/"+file_node->file_name);
+                            _editor->should_refresh_working_directory = true;
+                        }
+                    }
+                //}
 
-                    //Move to parent folder to place next to neighbouring folder
-                    _program->drag_drop_stack.back().move_to_folder = _parent;
-                    _program->drag_drop_stack.back().move_to_path = _program->working_directory_path + path;
-                    _program->drag_drop_stack.back().index_in_move_to_folder = _file_index;
-                    //_program->drag_drop_stack.push_back();
-                }
-                //ImGui::AcceptDragDropPayload("CONTENT_BROWSER_DATA");
-    
                 ImGui::EndDragDropTarget();
             }
 
-            if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
-
-                path_for_drag_drop_payload_use_only = path+"/"+file_name;
-
-                ImGui::SetDragDropPayload("FROM_FILE", this, sizeof(*this));
-    
-                ImGui::EndDragDropSource();
-            }*/
         }
 
         if(!ImGui::IsItemClicked() && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsKeyPressed(ImGuiKey_Enter))){
@@ -136,6 +76,7 @@ namespace UFOEngineStudio{
                 std::string full_path = _editor->opened_directory_path +"/"+ path+"/"+file_name;
                 int res = std::remove(full_path.c_str());
                 if(res) Console::PrintLine("TreeFile::Update(): Failture upon trying to remove", full_path.c_str());
+                _editor->should_refresh_working_directory = true;
                 
             }
             if(ImGui::MenuItem("New File")){

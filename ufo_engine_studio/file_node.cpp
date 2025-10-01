@@ -48,7 +48,13 @@ std::unique_ptr<FileNode> FileNode::ParseFolder(std::string _path){
 }
 
 void FileNode::Update(int _file_index, Directory* _parent,std::string path , Editor* _editor){
-    
+    if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)){
+        path_for_drag_drop_payload_use_only = _editor->opened_directory_path + path + "/" + file_name;
+        ImGui::SetDragDropPayload("FileDragDrop", this, sizeof(FileNode));
+        ImGui::Text(file_name.c_str());
+
+        ImGui::EndDragDropSource();
+    }
 }
 
 void FileNode::AddFileNodesRecursive(){

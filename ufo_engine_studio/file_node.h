@@ -31,6 +31,8 @@ public:
     std::string file_name;
     std::string old_file_name;
 
+    std::string path_for_drag_drop_payload_use_only = "";
+
     FileNode();
 
     //This parses a folder

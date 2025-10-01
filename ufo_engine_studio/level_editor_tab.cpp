@@ -6,9 +6,9 @@
 #include "../console/console.h"
 #include <SDL3/SDL.h>
 #include "../json/json_variant.h"
-#include "program_state.h"
-#include "../imgui/imgui.h"
-#include "../imgui/misc/cpp/imgui_stdlib.h"
+#include "editor.h"
+#include "../UFO-Engine-GL/imgui/imgui.h"
+#include "../UFO-Engine-GL/imgui/misc/cpp/imgui_stdlib.h"
 #include "im_vec.h"
 #include "dock_utils.h"
 #include "actor_node.h"
@@ -17,20 +17,20 @@
 
 namespace UFOEngineStudio{
 
-LevelEditorTab::LevelEditorTab(ProgramState* _program_state,std::string _file){
+LevelEditorTab::LevelEditorTab(Editor* _program_state,std::string _file){
     name = _file.substr(_file.find_last_of("/")+1);
     actor = std::make_unique<ActorNode>();
     actor->name = "LevelRoot";
     _program_state->should_refresh_properties_on_all_nodes = true;
 }
 
-void LevelEditorTab::Update(ProgramState* _program_state){
+void LevelEditorTab::Update(Editor* _program_state){
     Tab::Update(_program_state);
 
     actor->UpdateExportedAttributes(_program_state);
 }
 
-void LevelEditorTab::ConvertActorTreeToCPP(ProgramState* _program_state){
+void LevelEditorTab::ConvertActorTreeToCPP(Editor* _program_state){
     JsonDictionary json = actor->WriteToJson();
 
     std::string top_node_name = json.Get("name").AsString();
@@ -89,7 +89,7 @@ void LevelEditorTab::ConvertActorTreeToCPP(ProgramState* _program_state){
     _program_state->should_refresh_working_directory = true;
 }
 
-void LevelEditorTab::ConvertJsonToCPP(std::string& _handle_identifiers, std::string& _handle_struct, std::string& _header_file , std::vector<std::string>& _used_actor_classes, JsonDictionary* _parent_json, ProgramState* _program_state){
+void LevelEditorTab::ConvertJsonToCPP(std::string& _handle_identifiers, std::string& _handle_struct, std::string& _header_file , std::vector<std::string>& _used_actor_classes, JsonDictionary* _parent_json, Editor* _program_state){
 
     std::string parent_name = _parent_json->Get("name").AsString();
     std::string parent_type = _parent_json->Get("type").AsString();
@@ -252,7 +252,7 @@ void LevelEditorTab::ConvertJsonToCPP(std::string& _handle_identifiers, std::str
 
 }
 
-void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _program_state){
+void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , Editor* _program_state){
 
     ImGui::Begin("LevelContentBrowser");
 
@@ -351,11 +351,11 @@ void LevelEditorTab::OnActive(ImGuiID _local_dockspace_id , ProgramState* _progr
     
 }
 
-void LevelEditorTab::OnMakeDockSpace(ImGuiID _local_dockspace_id, ProgramState* _program_state){
+void LevelEditorTab::OnMakeDockSpace(ImGuiID _local_dockspace_id, Editor* _program_state){
     ImGuiDockSpaceSplit(_local_dockspace_id, ImGui::GetWindowSize(), "Level Grid", "LevelContentBrowser", SplitDirections::HORIZONTAL);
 }
 
-void LevelEditorTab::OnSave(ProgramState* _program_state){
+void LevelEditorTab::OnSave(Editor* _program_state){
     ConvertActorTreeToCPP(_program_state);
 
     if(path != "") actor->WriteToJson().Write(path);
