@@ -1,6 +1,7 @@
 #include <level.h>
 #include <string>
 #include <memory>
+#include <camera.h>
 #include "file_node.h"
 #include "../UFO-Engine-GL/imgui/imgui.h"
 #include "../ufo_engine_studio/dock_utils.h"
@@ -8,6 +9,7 @@
 #include "tab.h"
 #include "editor.h"
 #include "../ufo_engine_studio_gl/level_editor_tab_gl.h"
+#include "controllable_camera.h"
 
 namespace UFOEngineStudio{
 
@@ -25,7 +27,12 @@ Editor::Editor(){
 
 void
 Editor::Load(){
-    tabs.push_back(std::make_unique<LevelEditorTab>(engine));
+
+    Level::Load();
+
+    tabs.push_back(std::make_unique<LevelEditorTab>(engine, this));
+    tabs.push_back(std::make_unique<LevelEditorTab>(engine, this));
+    tabs.push_back(std::make_unique<Tab>());
 }
 
 void Editor::ImportHeaderFileToProject(std::string _path){
@@ -75,7 +82,7 @@ void Editor::OnUpdate(float _delta_time){
     ImGui::BeginTabBar("TabBar");
 
     for(const auto& tab : tabs){
-        tab->Update(this);
+        tab->Update(this, _delta_time);
     }
 
     ImGui::EndTabBar();

@@ -5,6 +5,9 @@
 #include <vector>
 #include "file_node.h"
 #include "tab.h"
+#include "../UFO-Engine-GL/glad/include/glad/glad.h"
+#include <graphics.h>
+#include <engine.h>
 
 namespace UFOEngineStudio{
 
@@ -24,6 +27,19 @@ public:
     void ImportHeaderFileToProject(std::string _path);
 
     void OnUpdate(float _delta_time);
+
+    void EditorUpdatePhase(float _delta_time){
+        /*for(const auto& tab : tabs){
+            tab->LevelUpdatePhase(_delta_time);
+        }*/
+    }
+
+    void EditorDrawPhase(){
+        /*for(const auto& tab : tabs){
+            tab->LevelDrawPhase(engine->graphics.get());
+        }*/
+    }
+
 };
 
 }

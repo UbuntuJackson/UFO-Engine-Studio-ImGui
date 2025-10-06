@@ -11,9 +11,15 @@
 
 namespace UFOEngineStudio{
 
-void Tab::Update(Editor* _editor){
+Tab::Tab(){
+    id = id_counter++;
 
-    if(ImGui::BeginTabItem(((DetermineIfEdited() ? name : name+"*")+"###"+path).c_str(), &opened, ImGuiTabItemFlags_None)){
+    name_and_imgui_id = std::string(path+"###Tab"+std::to_string(id));
+}
+
+void Tab::Update(Editor* _editor, float _delta_time){
+
+    if(ImGui::BeginTabItem(((DetermineIfEdited() ? name : name+"*")+"###"+path+std::to_string(id)).c_str(), &opened, ImGuiTabItemFlags_None)){
         //ImGui::BeginChildFrame(1,ImVec2(800,600));
         //ImGui::Begin(("TabWindow##"+name).c_str());
         ImGuiID local_dockspace_id = ImGui::GetID(name.c_str());
@@ -26,7 +32,7 @@ void Tab::Update(Editor* _editor){
 
         _editor->active_tab = this;
 
-        OnActive(local_dockspace_id ,_editor);
+        OnActive(local_dockspace_id ,_editor, _delta_time);
 
         //ImGui::EndChildFrame();
         ImGui::EndTabItem();
@@ -43,7 +49,7 @@ void Tab::OnMakeDockSpace(ImGuiID _local_dockspace_id, Editor* _program_state){
     
 }
 
-void Tab::OnActive(ImGuiID _local_dockspace_id , Editor* _program_state){}
+void Tab::OnActive(ImGuiID _local_dockspace_id , Editor* _program_state, float _delta_time){}
 
 void Tab::OnSave(Editor* _program_state){
 }

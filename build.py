@@ -6,7 +6,7 @@ if build_fail:
     print("Build failed")
 else:
 
-    runtime_fail = os.system("cd build && gdb OUT")
+    runtime_fail = os.system("cd build && ./OUT")
 
     if runtime_fail:
         print("Runtime fail")
